@@ -31,5 +31,6 @@ public class Test {
             }
         });
         AnnularQueue.submit(schedule);
+        th1.join();
     }
 }

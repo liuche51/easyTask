@@ -43,17 +43,20 @@ public class AnnularQueue {
                 }
             }
             Slice slice = slices[second];
-            log.debug("已执行时间分片:{}", second);
+            log.debug("已执行时间分片:{}，任务数量:{}", second,slice.getList()==null?0: slice.getList().size());
             lastSecond = second;
             executor.submit(new Runnable() {
                 public void run() {
                     List<Schedule> schedules = slice.getList();
+                    List<Schedule> willremove=new LinkedList<>();
                     schedules.forEach(x -> {
                         if (System.currentTimeMillis() >= x.getEndTimestamp()) {
                             workers.submit(x.getTask());
+                            willremove.add(x);
+                            log.debug("已提交分片:{} 一个任务",second);
                         }
                     });
-
+                    schedules.removeAll(willremove);
                 }
             });
         }
@@ -65,7 +68,10 @@ public class AnnularQueue {
         Slice slice = slices[second];
         List<Schedule> list = slice.getList();
         if (list == null)
+        {
             list = new LinkedList<>();
+            slice.setList(list);
+        }
         list.add(schedule);
         log.debug("已添加1个任务，所属分片:{} 预计执行时间:{}",schedule.getExcuteTime().getSecond(),schedule.getExcuteTime().toLocalTime());
     }
