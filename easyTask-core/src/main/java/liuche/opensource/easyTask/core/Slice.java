@@ -3,13 +3,13 @@ package liuche.opensource.easyTask.core;
 import java.util.List;
 
 public class Slice {
-    private List<Task> list;
+    private List<Schedule> list;
 
-    public List<Task> getList() {
+    public List<Schedule> getList() {
         return list;
     }
 
-    public void setList(List<Task> list) {
+    public void setList(List<Schedule> list) {
         this.list = list;
     }
 }
