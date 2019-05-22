@@ -20,26 +20,24 @@ public class Test {
 
     @org.junit.Test
     public void testMain() throws InterruptedException {
-        DbInit db=new DbInit();
-        db.init();
+       // DbInit db=new DbInit();
+        //db.init();
         Thread th1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 AnnularQueue.start();
             }
         });
-        //th1.start();
-        Task task = new Task();
-        task.setExcuteTime(LocalDateTime.now().minusSeconds(-30));
+        th1.start();
         Task1 task1 = new Task1();
-        task.setRun(task1);
+        task1.setExcuteTime(LocalDateTime.now().minusSeconds(-10));
       /*  task.setRun(new Runnable() {
             @Override
             public void run() {
                 log.info("任务1已执行");
             }
         });*/
-        AnnularQueue.submit(task);
+        AnnularQueue.submit(task1);
         th1.join();
     }
     @org.junit.Test
@@ -59,5 +57,9 @@ public class Test {
             e.printStackTrace();
         }
     }
-
+    @org.junit.Test
+    public void test4() {
+       AnnularQueue.recover();
+        AnnularQueue.start();
+    }
 }
