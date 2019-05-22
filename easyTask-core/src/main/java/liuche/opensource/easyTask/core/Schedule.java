@@ -3,13 +3,13 @@ package liuche.opensource.easyTask.core;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-public class Schedule {
+class Schedule {
     /**
      * 任务截止运行时间
      */
     private long endTimestamp;
-    private LocalDateTime excuteTime;
-    private Runnable task;
+    private Runnable run;
+    private String taskClassPath;
 
     public long getEndTimestamp() {
         return endTimestamp;
@@ -19,19 +19,19 @@ public class Schedule {
         this.endTimestamp = endTimestamp;
     }
 
-    public LocalDateTime getExcuteTime() {
-        return excuteTime;
+    public Runnable getRun() {
+        return run;
     }
 
-    public void setExcuteTime(LocalDateTime excuteTime) {
-        this.excuteTime = excuteTime;
+    public void setRun(Runnable run) {
+        this.run = run;
     }
 
-    public Runnable getTask() {
-        return task;
+    public String getTaskClassPath() {
+        return taskClassPath;
     }
 
-    public void setTask(Runnable task) {
-        this.task = task;
+    public void setTaskClassPath(String taskClassPath) {
+        this.taskClassPath = taskClassPath;
     }
 }

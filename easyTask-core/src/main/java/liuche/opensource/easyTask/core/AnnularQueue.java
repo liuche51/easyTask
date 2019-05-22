@@ -4,6 +4,7 @@ package liuche.opensource.easyTask.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalField;
@@ -51,7 +52,7 @@ public class AnnularQueue {
                     List<Schedule> willremove=new LinkedList<>();
                     schedules.forEach(x -> {
                         if (System.currentTimeMillis() >= x.getEndTimestamp()) {
-                            workers.submit(x.getTask());
+                            workers.submit(x.getRun());
                             willremove.add(x);
                             log.debug("已提交分片:{} 一个任务",second);
                         }
@@ -62,9 +63,11 @@ public class AnnularQueue {
         }
     }
 
-    public static void submit(Schedule schedule) {
-        schedule.setEndTimestamp(schedule.getExcuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
-        int second = schedule.getExcuteTime().getSecond();
+    public static void submit(Task task) {
+        Schedule schedule=new Schedule();
+        schedule.setEndTimestamp(task.getExcuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        schedule.setRun(task.getRun());
+        int second = task.getExcuteTime().getSecond();
         Slice slice = slices[second];
         List<Schedule> list = slice.getList();
         if (list == null)
@@ -73,6 +76,9 @@ public class AnnularQueue {
             slice.setList(list);
         }
         list.add(schedule);
-        log.debug("已添加1个任务，所属分片:{} 预计执行时间:{}",schedule.getExcuteTime().getSecond(),schedule.getExcuteTime().toLocalTime());
+        String path=task.getClass().getName();
+        schedule.setTaskClassPath(path);
+        log.debug("已添加1个任务，所属分片:{} 预计执行时间:{}",task.getExcuteTime().getSecond(),task.getExcuteTime().toLocalTime());
     }
+
 }
