@@ -94,8 +94,11 @@ public class AnnularQueue {
             for (Schedule schedule : list) {
                 try {
                     Class c = Class.forName(schedule.getTaskClassPath());
-                    Runnable run = (Runnable) c.newInstance();
-                    schedule.setRun(run);
+                    Object o = c.newInstance();
+                    Task task=(Task)o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
+                    task.setId(schedule.getId());
+                    Runnable proxy= (Runnable) new ProxyFactory(o).getProxyInstance();
+                    schedule.setRun(proxy);
                     LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
                     int second = time.getSecond();
                     Slice slice = slices[second];
@@ -109,7 +112,7 @@ public class AnnularQueue {
                     log.error("task:{} recover fail.", schedule.getId());
                 }
             }
-            log.debug("easyTask recover success.");
+            log.debug("easyTask recover success! count:{}",list.size());
         } catch (Exception e) {
             log.error("easyTask recover fail.");
         }
