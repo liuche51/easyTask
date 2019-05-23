@@ -1,13 +1,9 @@
-package liuche.opensource.easyTask.test;
-
 import liuche.opensource.easyTask.core.AnnularQueue;
 import liuche.opensource.easyTask.core.DbInit;
-import liuche.opensource.easyTask.core.SqliteHelper;
 import liuche.opensource.easyTask.core.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class Test {
@@ -20,8 +16,8 @@ public class Test {
 
     @org.junit.Test
     public void testMain() throws InterruptedException {
-       // DbInit db=new DbInit();
-        //db.init();
+        DbInit db=new DbInit();
+        db.init();
         Thread th1 = new Thread(new Runnable() {
             @Override
             public void run() {

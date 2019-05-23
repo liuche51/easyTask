@@ -1,5 +1,3 @@
-package liuche.opensource.easyTask.test;
-
 import liuche.opensource.easyTask.core.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
