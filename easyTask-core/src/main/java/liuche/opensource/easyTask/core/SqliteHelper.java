@@ -161,19 +161,17 @@ public class SqliteHelper {
      */
     public void destroyed() {
         try {
-            if (null != connection) {
-                connection.close();
-                connection = null;
+            if (null != resultSet) {
+                resultSet.close();
+                resultSet = null;
             }
-
             if (null != statement) {
                 statement.close();
                 statement = null;
             }
-
-            if (null != resultSet) {
-                resultSet.close();
-                resultSet = null;
+            if (null != connection) {
+                connection.close();
+                connection = null;
             }
         } catch (SQLException e) {
             logger.error("Sqlite数据库关闭时异常", e);
