@@ -10,23 +10,12 @@ import java.time.LocalDateTime;
 
 public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
+    private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     public static void main(String[] args){
-         DbInit db=new DbInit();
-        db.init();
-        Thread th1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                AnnularQueue.start();
-            }
-        });
-        th1.start();
+
+        annularQueue.start();
         CusTask1 task1 = new CusTask1();
         task1.setExcuteTime(LocalDateTime.now().minusSeconds(-10));
         AnnularQueue.submit(task1);
-        try {
-            th1.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

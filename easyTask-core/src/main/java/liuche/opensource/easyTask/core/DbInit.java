@@ -4,10 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-
-public class DbInit {
+ class DbInit {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
-    public boolean init() {
+    public static boolean init() {
         try {
             boolean exist=ScheduleDao.existTable();
             if(exist)

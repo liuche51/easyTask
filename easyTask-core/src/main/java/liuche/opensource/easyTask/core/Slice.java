@@ -1,15 +1,16 @@
 package liuche.opensource.easyTask.core;
 
 import java.util.List;
+import java.util.TreeSet;
 
 public class Slice {
-    private List<Schedule> list;
+    private TreeSet<Schedule> list;
 
-    public List<Schedule> getList() {
+    public TreeSet<Schedule> getList() {
         return list;
     }
 
-    public void setList(List<Schedule> list) {
+    public void setList(TreeSet<Schedule> list) {
         this.list = list;
     }
 }
