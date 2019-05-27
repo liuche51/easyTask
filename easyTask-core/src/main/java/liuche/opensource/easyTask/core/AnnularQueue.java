@@ -14,6 +14,9 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.*;
 
+/**
+ * 环形任务队列
+ */
 public class AnnularQueue {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
     private static AnnularQueue singleton = null;
@@ -73,7 +76,7 @@ public class AnnularQueue {
         Thread th1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                this.run();
+                runQueue();
             }
         });
         th1.start();
@@ -81,7 +84,7 @@ public class AnnularQueue {
     /**
      * start the AnnularQueue
      */
-    private synchronized void run() {
+    private synchronized void runQueue() {
         //避免重复执行
         if (isRunning)
             return;

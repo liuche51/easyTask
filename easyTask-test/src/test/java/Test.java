@@ -1,5 +1,4 @@
 import liuche.opensource.easyTask.core.AnnularQueue;
-import liuche.opensource.easyTask.core.DbInit;
 import liuche.opensource.easyTask.core.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,38 +7,19 @@ import java.time.LocalDateTime;
 
 public class Test {
     private static Logger log = LoggerFactory.getLogger(Test.class);
-
+    private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     @org.junit.Test
     public void testAnnularQueue() {
-        AnnularQueue.start();
+
     }
 
     @org.junit.Test
     public void testMain() throws InterruptedException {
-        DbInit db=new DbInit();
-        db.init();
-        Thread th1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                AnnularQueue.start();
-            }
-        });
-        th1.start();
-        Task1 task1 = new Task1();
-        task1.setExcuteTime(LocalDateTime.now().minusSeconds(-10));
-      /*  task.setRun(new Runnable() {
-            @Override
-            public void run() {
-                log.info("任务1已执行");
-            }
-        });*/
-        AnnularQueue.submit(task1);
-        th1.join();
+
     }
     @org.junit.Test
     public void test2() {
-        DbInit db=new DbInit();
-        db.init();
+
     }
     @org.junit.Test
     public void test3() {
@@ -55,7 +35,6 @@ public class Test {
     }
     @org.junit.Test
     public void test4() {
-       AnnularQueue.recover();
-        AnnularQueue.start();
+
     }
 }

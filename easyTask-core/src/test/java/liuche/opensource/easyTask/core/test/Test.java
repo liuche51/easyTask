@@ -10,7 +10,7 @@ public class Test {
     private static Logger log = LoggerFactory.getLogger(Test.class);
     @org.junit.Test
     public void testAnnularQueue(){
-        AnnularQueue.start();
+        //AnnularQueue.start();
     }
     @org.junit.Test
     public void testMain() throws InterruptedException {
