@@ -118,28 +118,35 @@ public class AnnularQueue {
                     public void run() {
                         TreeSet<Schedule> schedules = slice.getList();
                         List<Schedule> willremove = new LinkedList<>();
-                        schedules.forEach(x -> {
+                        for (Schedule x : schedules) {
                             if (System.currentTimeMillis() >= x.getEndTimestamp()) {
                                 workers.submit(x.getRun());
                                 willremove.add(x);
                                 log.debug("已提交分片:{} 一个任务:{}", second, x.getId());
                             }
-                        });
+                            //因为列表是已经按截止执行时间排好序的，可以节省后面元素的过期判断
+                            else break;
+                        }
                         schedules.removeAll(willremove);
                         submitNewPeriodSchedule(willremove);
                     }
                 });
             }
 
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             isRunning = false;
             log.error("AnnularQueue start fail.", e);
             throw e;
         }
+
     }
 
     public String submit(Task task) throws Exception {
         Schedule schedule = new Schedule();
+        schedule.setTaskType(task.getTaskType());
+        schedule.setPeriod(task.getPeriod());
+        schedule.setUnit(task.getUnit());
         if (task.getTaskType().equals(TaskType.ONECE))
             schedule.setEndTimestamp(task.getExecuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
         if (task.getTaskType().equals(TaskType.PERIOD)) {

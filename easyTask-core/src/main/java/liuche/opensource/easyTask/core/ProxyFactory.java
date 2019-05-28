@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-public class ProxyFactory {
+ class ProxyFactory {
     private static Logger log = LoggerFactory.getLogger(ProxyFactory.class);
     private Object target;
 

@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class ScheduleDao {
+ class ScheduleDao {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
 
     public static boolean existTable() {

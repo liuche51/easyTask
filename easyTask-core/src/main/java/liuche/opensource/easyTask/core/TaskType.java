@@ -1,6 +1,6 @@
 package liuche.opensource.easyTask.core;
 
-public enum TaskType {
+ public enum TaskType {
     /**
      * execute once
      */

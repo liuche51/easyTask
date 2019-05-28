@@ -24,11 +24,12 @@ public class Test {
         AnnularQueue.getInstance().start();
         for(int i=0;i<10;i++){
             CusTask1 task1 = new CusTask1();
-            task1.setExcuteTime(LocalDateTime.now().minusSeconds(-10));
-            AnnularQueue.submit(task1);
+            task1.setExecuteTime(LocalDateTime.now().minusSeconds(-10));
+
             try {
+                AnnularQueue.getInstance().submit(task1);
                 Thread.sleep(500l);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -37,15 +38,7 @@ public class Test {
     }
     @org.junit.Test
     public void test3() {
-        Task task = new Task();
-        String path=task.getClass().getName();
-        try {
-            Class c= Class.forName(path);
-            Task t=(Task) c.newInstance();
-            t.setExcuteTime(LocalDateTime.now());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
     @org.junit.Test
     public void test4() {

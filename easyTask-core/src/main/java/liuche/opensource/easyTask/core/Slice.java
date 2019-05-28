@@ -3,7 +3,7 @@ package liuche.opensource.easyTask.core;
 import java.util.List;
 import java.util.TreeSet;
 
-public class Slice {
+ class Slice {
     private TreeSet<Schedule> list;
 
     public TreeSet<Schedule> getList() {
