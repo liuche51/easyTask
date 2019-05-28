@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author haoqipeng
  */
-public class SqliteHelper {
+class SqliteHelper {
     final static Logger logger = LoggerFactory.getLogger(SqliteHelper.class);
 
     private Connection connection;

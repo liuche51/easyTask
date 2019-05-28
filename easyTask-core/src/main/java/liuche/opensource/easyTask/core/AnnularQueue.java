@@ -24,11 +24,11 @@ public class AnnularQueue {
     /**
      * 任务调度线程池
      */
-    private static ExecutorService dispatchs =null;
+    private static ExecutorService dispatchs = null;
     /**
      * 工作任务线程池
      */
-    private static ExecutorService workers =null;
+    private static ExecutorService workers = null;
     static Slice[] slices = new Slice[60];
 
     static {
@@ -47,7 +47,12 @@ public class AnnularQueue {
         }
         return singleton;
     }
-    private AnnularQueue(){};
+
+    private AnnularQueue() {
+    }
+
+    ;
+
     /**
      * set the Dispatch ThreadPool
      *
@@ -72,7 +77,8 @@ public class AnnularQueue {
         if (this.workers == null)
             this.workers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     }
-    public void start(){
+
+    public void start() {
         Thread th1 = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -81,6 +87,7 @@ public class AnnularQueue {
         });
         th1.start();
     }
+
     /**
      * start the AnnularQueue
      */
@@ -90,6 +97,7 @@ public class AnnularQueue {
             return;
         try {
             DbInit.init();
+            recover();
             isRunning = true;
             setDefaultThreadPool();
             int lastSecond = 0;
@@ -118,6 +126,7 @@ public class AnnularQueue {
                             }
                         });
                         schedules.removeAll(willremove);
+                        submitNewPeriodSchedule(willremove);
                     }
                 });
             }
@@ -129,30 +138,50 @@ public class AnnularQueue {
         }
     }
 
-    public static String submit(Task task) {
+    public String submit(Task task) throws Exception {
         Schedule schedule = new Schedule();
-        schedule.setEndTimestamp(task.getExcuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        if (task.getTaskType().equals(TaskType.ONECE))
+            schedule.setEndTimestamp(task.getExecuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        if (task.getTaskType().equals(TaskType.PERIOD)) {
+            if (task.isImmediateExecute())
+                schedule.setEndTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+            else
+                schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
+        }
         Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
         schedule.setRun(proxy);
-        String id = UUID.randomUUID().toString().replace("-", "");
-        schedule.setId(id);
-        task.setId(id);
-        int second = task.getExcuteTime().getSecond();
-        Slice slice = slices[second];
-        TreeSet<Schedule> list = slice.getList();
-        if (list == null) {
-            list = new TreeSet<>();
-            slice.setList(list);
-        }
-        list.add(schedule);
+        AddSchedule(schedule);
         String path = task.getClass().getName();
         schedule.setTaskClassPath(path);
         schedule.save();
-        log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), task.getExcuteTime().getSecond(), task.getExcuteTime().toLocalTime());
+        log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), task.getExecuteTime().getSecond(), task.getExecuteTime().toLocalTime());
         return schedule.getId();
     }
 
-    public static void recover() {
+    /**
+     * 批量创建新周期任务
+     *
+     * @param list
+     */
+    private void submitNewPeriodSchedule(List<Schedule> list) {
+        for (Schedule schedule : list) {
+            if (!TaskType.PERIOD.equals(schedule.getTaskType()))//周期任务需要重新提交新任务
+                continue;
+            Schedule schedule1 = schedule.clone();
+            try {
+                schedule1.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule1.getPeriod(), schedule1.getUnit()));
+                AddSchedule(schedule1);
+                log.debug("已添加新周期任务:{}，旧任务:{}", schedule1.getId(), schedule.getId());
+            } catch (Exception e) {
+                log.error("submitNewPeriodSchedule exception！", e);
+            }
+        }
+    }
+
+    /**
+     * 恢复中断后的系统任务
+     */
+    private void recover() {
         List<Schedule> list = ScheduleDao.selectAll();
         try {
             for (Schedule schedule : list) {
@@ -163,15 +192,7 @@ public class AnnularQueue {
                     task.setId(schedule.getId());
                     Runnable proxy = (Runnable) new ProxyFactory(o).getProxyInstance();
                     schedule.setRun(proxy);
-                    LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
-                    int second = time.getSecond();
-                    Slice slice = slices[second];
-                    TreeSet<Schedule> list2 = slice.getList();
-                    if (list2 == null) {
-                        list2 = new TreeSet<>();
-                        slice.setList(list2);
-                    }
-                    list2.add(schedule);
+                    AddSchedule(schedule);
                 } catch (Exception e) {
                     log.error("task:{} recover fail.", schedule.getId());
                 }
@@ -180,6 +201,17 @@ public class AnnularQueue {
         } catch (Exception e) {
             log.error("easyTask recover fail.");
         }
+    }
 
+    private void AddSchedule(Schedule schedule1) {
+        LocalDateTime time = LocalDateTime.ofEpochSecond(schedule1.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
+        int second = time.getSecond();
+        Slice slice = slices[second];
+        TreeSet<Schedule> list2 = slice.getList();
+        if (list2 == null) {
+            list2 = new TreeSet<>();
+            slice.setList(list2);
+        }
+        list2.add(schedule1);
     }
 }

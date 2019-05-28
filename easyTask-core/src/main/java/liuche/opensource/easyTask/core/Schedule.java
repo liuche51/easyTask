@@ -1,8 +1,11 @@
 package liuche.opensource.easyTask.core;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 class Schedule implements Comparable {
     /**
@@ -10,6 +13,9 @@ class Schedule implements Comparable {
      */
     private String id;
     private long endTimestamp;
+    private TaskType taskType;
+    private long period;
+    private TimeUnit unit;
     private Runnable run;
     private String taskClassPath;
 
@@ -44,11 +50,76 @@ class Schedule implements Comparable {
     public void setTaskClassPath(String taskClassPath) {
         this.taskClassPath = taskClassPath;
     }
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
+    }
+    public long getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+    }
+
+    public TimeUnit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(TimeUnit unit) {
+        this.unit = unit;
+    }
 
     public void save() {
         ScheduleDao.save(this);
     }
+    public Schedule(){
+        this.id=UUID.randomUUID().toString().replace("-", "");
+    }
+    public Schedule clone(){
+        Schedule schedule=new Schedule();
+        schedule.setId( UUID.randomUUID().toString().replace("-", ""));
+        schedule.setEndTimestamp(this.endTimestamp);
+        schedule.setPeriod(this.period);
+        schedule.setTaskType(this.taskType);
+        schedule.setUnit(this.unit);
+        schedule.setRun(this.run);
+        schedule.setTaskClassPath(this.taskClassPath);
+        return schedule;
+    }
 
+    /**
+     * 获取周期性任务下次执行时间。已当前时间为基准计算下次而不是上次截止执行时间
+     * @param period
+     * @param unit
+     * @return
+     * @throws Exception
+     */
+    public static long getTimeStampByTimeUnit(long period,TimeUnit unit) throws Exception {
+        if(period==0)
+            throw new Exception("period can not zero");
+        switch (unit)
+        {
+            case DAYS:
+                return LocalDateTime.now().plusDays(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+            case HOURS:
+                return LocalDateTime.now().plusHours(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+            case MINUTES:
+                return LocalDateTime.now().plusMinutes(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+            case SECONDS:
+                return LocalDateTime.now().plusSeconds(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+            case MILLISECONDS:
+                return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period;
+            case MICROSECONDS:
+                return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period/1000;
+            case NANOSECONDS:
+                return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period/1000000;
+                default:throw new Exception("unSupport TimeUnit type");
+        }
+    }
     /**
      * 按任务截止触发时间顺序排序
      *
