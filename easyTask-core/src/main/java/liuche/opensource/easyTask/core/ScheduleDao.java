@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
     }
 
     public static boolean save(Schedule schedule) {
-        SqliteHelper helper = new SqliteHelper();
         try {
             if (!DbInit.hasInit)
                 DbInit.init();
@@ -38,15 +37,13 @@ import java.util.concurrent.TimeUnit;
                     + schedule.getId() + "','" + schedule.getTaskClassPath() + "'," + schedule.getEndTimestamp()
                     +",'"+schedule.getTaskType().name()+"',"+schedule.getPeriod()+",'"+(schedule.getUnit()==null?"":schedule.getUnit().name())
                     +"','"+ LocalDateTime.now().toLocalTime()+ "');";
-            int count = helper.executeUpdate(sql);
+            int count = SqliteHelper.executeUpdateForSync(sql);
             if (count > 0) {
                 log.debug("任务:{} 已经持久化", schedule.getId());
                 return true;
             }
         } catch (Exception e) {
             log.error("ScheduleDao.save 异常:{}", e);
-        } finally {
-            helper.destroyed();
         }
         return false;
     }
@@ -110,17 +107,14 @@ import java.util.concurrent.TimeUnit;
     }
 
     public static boolean delete(String id) {
-        SqliteHelper helper = new SqliteHelper();
         try {
             String sql = "delete FROM schedule where id='" + id + "';";
-            int count = helper.executeUpdate(sql);
+            int count = SqliteHelper.executeUpdateForSync(sql);
             if (count > 0)
                 log.debug("任务:{} 已经删除", id);
         } catch (Exception e) {
             log.error("ScheduleDao.delete 异常:{}", e);
             return false;
-        } finally {
-            helper.destroyed();
         }
         return true;
     }

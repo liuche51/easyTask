@@ -22,8 +22,7 @@ import java.sql.SQLException;
                     "\"create_time\"  TEXT,\n" +
                     "PRIMARY KEY (\"id\" ASC)\n" +
                     ");";
-            SqliteHelper helper=new SqliteHelper();
-            helper.executeUpdate(sql);
+            SqliteHelper.executeUpdateForSync(sql);
             hasInit=true;
             return true;
         } catch (Exception e) {

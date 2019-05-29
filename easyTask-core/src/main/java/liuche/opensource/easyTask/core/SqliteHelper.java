@@ -32,16 +32,16 @@ class SqliteHelper {
             try {
                 //非jar包时，得到classes目录。jar包时会报异常
                 String path1 = this.getClass().getClassLoader().getResource("").getPath();
-                this.dbFilePath = path1+"easyTask.db";
+                this.dbFilePath = path1 + "easyTask.db";
                 logger.debug("db-path:{}", dbFilePath);
             } catch (Exception e) {
 
             }
-            if (this.dbFilePath.equals("")){
+            if (this.dbFilePath.equals("")) {
                 try {
                     //非jar包时，得到当前类所属jar包的classes目录。jar包时会得到所属运行jar包的物理路径（含.jar部分）
                     String path2 = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-                    this.dbFilePath = path2+"-easyTask.db";
+                    this.dbFilePath = path2 + "-easyTask.db";
                     logger.debug("db-path:{}", dbFilePath);
                 } catch (Exception e) {
                 }
@@ -74,7 +74,7 @@ class SqliteHelper {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public Connection getConnection(String dbFilePath) throws ClassNotFoundException, SQLException {
+    private Connection getConnection(String dbFilePath) throws ClassNotFoundException, SQLException {
         Connection conn = null;
         Class.forName("org.sqlite.JDBC");
         conn = DriverManager.getConnection("jdbc:sqlite:" + dbFilePath);
@@ -89,7 +89,7 @@ class SqliteHelper {
      * @throws SQLException
      * @throws ClassNotFoundException
      */
-    public int executeUpdate(String sql) throws SQLException, ClassNotFoundException {
+    private int executeUpdate(String sql) throws SQLException, ClassNotFoundException {
         try {
             int c = getStatement().executeUpdate(sql);
             return c;
@@ -106,7 +106,7 @@ class SqliteHelper {
      * @throws SQLException
      * @throws ClassNotFoundException
      */
-    public void executeUpdate(String... sqls) throws SQLException, ClassNotFoundException {
+    private void executeUpdate(String... sqls) throws SQLException, ClassNotFoundException {
         try {
             for (String sql : sqls) {
                 getStatement().executeUpdate(sql);
@@ -123,7 +123,7 @@ class SqliteHelper {
      * @throws SQLException
      * @throws ClassNotFoundException
      */
-    public void executeUpdate(List<String> sqls) throws SQLException, ClassNotFoundException {
+    private void executeUpdate(List<String> sqls) throws SQLException, ClassNotFoundException {
         try {
             for (String sql : sqls) {
                 getStatement().executeUpdate(sql);
@@ -154,6 +154,18 @@ class SqliteHelper {
     private Statement getStatement() throws SQLException, ClassNotFoundException {
         if (null == statement) statement = getConnection().createStatement();
         return statement;
+    }
+
+    public static synchronized int executeUpdateForSync(String sql) throws SQLException, ClassNotFoundException {
+        SqliteHelper helper = new SqliteHelper();
+        try {
+            return helper.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            helper.destroyed();
+        }
+
     }
 
     /**
