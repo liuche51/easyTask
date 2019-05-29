@@ -19,6 +19,7 @@ import java.sql.SQLException;
                     "\"task_type\"  TEXT,\n" +
                     "\"period\"  INTEGER,\n" +
                     "\"unit\"  TEXT,\n" +
+                    "\"param\"  TEXT,\n" +
                     "\"create_time\"  TEXT,\n" +
                     "PRIMARY KEY (\"id\" ASC)\n" +
                     ");";

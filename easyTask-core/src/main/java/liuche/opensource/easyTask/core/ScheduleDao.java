@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
- class ScheduleDao {
+class ScheduleDao {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
 
     public static boolean existTable() {
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
                     return true;
             }
         } catch (Exception e) {
-            log.error("ScheduleDao.existTable 异常:{}", e);
+            log.error("ScheduleDao.existTable Exception:{}", e);
         } finally {
             helper.destroyed();
         }
@@ -33,17 +33,17 @@ import java.util.concurrent.TimeUnit;
         try {
             if (!DbInit.hasInit)
                 DbInit.init();
-            String sql = "insert into schedule(id,class_path,execute_time,task_type,period,unit,create_time) values('"
+            String sql = "insert into schedule(id,class_path,execute_time,task_type,period,unit,param,create_time) values('"
                     + schedule.getId() + "','" + schedule.getTaskClassPath() + "'," + schedule.getEndTimestamp()
-                    +",'"+schedule.getTaskType().name()+"',"+schedule.getPeriod()+",'"+(schedule.getUnit()==null?"":schedule.getUnit().name())
-                    +"','"+ LocalDateTime.now().toLocalTime()+ "');";
+                    + ",'" + schedule.getTaskType().name() + "'," + schedule.getPeriod() + ",'" + (schedule.getUnit() == null ? "" : schedule.getUnit().name())
+                    +"','"+Schedule.serializeMap(schedule.getParam())+ "','" + LocalDateTime.now().toLocalTime() + "');";
             int count = SqliteHelper.executeUpdateForSync(sql);
             if (count > 0) {
                 log.debug("任务:{} 已经持久化", schedule.getId());
                 return true;
             }
         } catch (Exception e) {
-            log.error("ScheduleDao.save 异常:{}", e);
+            log.error("ScheduleDao.save Exception:{}", e);
         }
         return false;
     }
@@ -54,52 +54,56 @@ import java.util.concurrent.TimeUnit;
         try {
             ResultSet resultSet = helper.executeQuery("SELECT * FROM schedule;");
             while (resultSet.next()) {
-                String id = resultSet.getString("id");
-                String classPath = resultSet.getString("class_path");
-                Long executeTime = resultSet.getLong("execute_time");
-                Integer taskType = resultSet.getInt("task_type");
-                Long period = resultSet.getLong("period");
-                String unit = resultSet.getString("unit");
-                Schedule schedule = new Schedule();
-                schedule.setId(id);
-                schedule.setTaskClassPath(classPath);
-                schedule.setEndTimestamp(executeTime);
-                if ("PERIOD".equals(taskType))
-                    schedule.setTaskType(TaskType.PERIOD);
-                else if ("ONECE".equals(taskType))
-                    schedule.setTaskType(TaskType.ONECE);
-                schedule.setPeriod(period.longValue());
-                switch (unit) {
-                    case "DAYS":
-                        schedule.setUnit(TimeUnit.DAYS);
-                        break;
-                    case "HOURS":
-                        schedule.setUnit(TimeUnit.HOURS);
-                        break;
-                    case "MINUTES":
-                        schedule.setUnit(TimeUnit.MINUTES);
-                        break;
-                    case "SECONDS":
-                        schedule.setUnit(TimeUnit.SECONDS);
-                        break;
-                    case "MILLISECONDS":
-                        schedule.setUnit(TimeUnit.MILLISECONDS);
-                        break;
-                    case "MICROSECONDS":
-                        schedule.setUnit(TimeUnit.MICROSECONDS);
-                        break;
-                    case "NANOSECONDS":
-                        schedule.setUnit(TimeUnit.NANOSECONDS);
-                        break;
-                    default:
-                        break;
-
+                try {
+                    String id = resultSet.getString("id");
+                    String classPath = resultSet.getString("class_path");
+                    Long executeTime = resultSet.getLong("execute_time");
+                    Integer taskType = resultSet.getInt("task_type");
+                    Long period = resultSet.getLong("period");
+                    String unit = resultSet.getString("unit");
+                    String param = resultSet.getString("param");
+                    Schedule schedule = new Schedule();
+                    schedule.setId(id);
+                    schedule.setTaskClassPath(classPath);
+                    schedule.setEndTimestamp(executeTime);
+                    schedule.setParam(Schedule.deserializeMap(param));
+                    if ("PERIOD".equals(taskType))
+                        schedule.setTaskType(TaskType.PERIOD);
+                    else if ("ONECE".equals(taskType))
+                        schedule.setTaskType(TaskType.ONECE);
+                    schedule.setPeriod(period.longValue());
+                    switch (unit) {
+                        case "DAYS":
+                            schedule.setUnit(TimeUnit.DAYS);
+                            break;
+                        case "HOURS":
+                            schedule.setUnit(TimeUnit.HOURS);
+                            break;
+                        case "MINUTES":
+                            schedule.setUnit(TimeUnit.MINUTES);
+                            break;
+                        case "SECONDS":
+                            schedule.setUnit(TimeUnit.SECONDS);
+                            break;
+                        case "MILLISECONDS":
+                            schedule.setUnit(TimeUnit.MILLISECONDS);
+                            break;
+                        case "MICROSECONDS":
+                            schedule.setUnit(TimeUnit.MICROSECONDS);
+                            break;
+                        case "NANOSECONDS":
+                            schedule.setUnit(TimeUnit.NANOSECONDS);
+                            break;
+                        default:
+                            break;
+                    }
+                    list.add(schedule);
+                } catch (Exception e) {
+                    log.error("ScheduleDao.selectAll a item exception:{}", e);
                 }
-
-                list.add(schedule);
             }
         } catch (Exception e) {
-            log.error("ScheduleDao.selectAll 异常:{}", e);
+            log.error("ScheduleDao.selectAll exception:{}", e);
         } finally {
             helper.destroyed();
         }
@@ -113,7 +117,7 @@ import java.util.concurrent.TimeUnit;
             if (count > 0)
                 log.debug("任务:{} 已经删除", id);
         } catch (Exception e) {
-            log.error("ScheduleDao.delete 异常:{}", e);
+            log.error("ScheduleDao.delete Exception:{}", e);
             return false;
         }
         return true;

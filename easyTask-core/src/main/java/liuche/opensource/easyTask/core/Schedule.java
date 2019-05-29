@@ -2,9 +2,7 @@ package liuche.opensource.easyTask.core;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 class Schedule implements Comparable {
@@ -18,6 +16,7 @@ class Schedule implements Comparable {
     private TimeUnit unit;
     private Runnable run;
     private String taskClassPath;
+    private Map<String,String> param;
 
     public String getId() {
         return id;
@@ -72,7 +71,13 @@ class Schedule implements Comparable {
     public void setUnit(TimeUnit unit) {
         this.unit = unit;
     }
+    public Map<String,String> getParam() {
+        return param;
+    }
 
+    public void setParam(Map<String,String> param) {
+        this.param = param;
+    }
     public void save() {
         ScheduleDao.save(this);
     }
@@ -88,6 +93,7 @@ class Schedule implements Comparable {
         schedule.setUnit(this.unit);
         schedule.setRun(this.run);
         schedule.setTaskClassPath(this.taskClassPath);
+        schedule.setParam(this.param);
         return schedule;
     }
 
@@ -119,6 +125,38 @@ class Schedule implements Comparable {
                 return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period/1000000;
                 default:throw new Exception("unSupport TimeUnit type");
         }
+    }
+
+    /**
+     * 序列化Map
+     * @param param
+     * @return
+     */
+    public static String serializeMap(Map<String,String> param){
+        if(param!=null&&param.size()>0){
+            StringBuilder builder=new StringBuilder();
+            for(Map.Entry<String,String> entry:param.entrySet()){
+                builder.append(entry.getKey()).append("#;").append(entry.getValue()).append("&;");
+            }
+            return builder.toString();
+        }else return null;
+    }
+
+    /**
+     * 反序列化Map
+     * @param param
+     * @return
+     */
+    public static Map<String,String> deserializeMap(String param){
+        if(param!=null&&param!=""){
+            Map<String,String> map=new HashMap<>();
+            String[] temp=param.split("&;");
+            for(int i=0;i<temp.length;i++){
+                String[] temp2=temp[i].split("#;");
+                map.put(temp2[0],temp2[1]);
+            }
+            return map;
+        }else return null;
     }
     /**
      * 按任务截止触发时间顺序排序

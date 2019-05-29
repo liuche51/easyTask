@@ -1,6 +1,7 @@
 package liuche.opensource.easyTask.core;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Task {
@@ -10,6 +11,11 @@ public class Task {
     private boolean immediateExecute=false;
     private long period;
     private TimeUnit unit;
+    /**
+     * customer myself param
+     * notice:key or value can not contain char "#;" and "&;" because it is a special char
+     */
+    private Map<String,String> param;
 
     public String getId() {
         return id;
@@ -57,5 +63,13 @@ public class Task {
 
     public void setUnit(TimeUnit unit) {
         this.unit = unit;
+    }
+
+    public Map<String,String> getParam() {
+        return param;
+    }
+
+    public void setParam(Map<String,String> param) {
+        this.param = param;
     }
 }

@@ -6,6 +6,8 @@ import sun.reflect.generics.tree.Tree;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,12 +16,15 @@ import java.util.concurrent.TimeUnit;
 public class Test {
     private static Logger log = LoggerFactory.getLogger(Test.class);
     @org.junit.Test
-    public void testAnnularQueue(){
-        Schedule task1 = new Schedule();
-        task1.setTaskType(TaskType.PERIOD);
-        task1.setEndTimestamp(11111111111111111l);
-        task1.setTaskClassPath("sdfdsfdsfdsf");
-        ScheduleDao.save(task1);
+    public void test(){
+        Map<String,String> map=new HashMap<String,String>(){
+            {
+                put("111&1","1111");
+                put("2222","22#22");
+            }
+        };
+       String ret= Schedule.serializeMap(map);
+        Map<String,String> map2=Schedule.deserializeMap(ret);
     }
     @org.junit.Test
     public void test1(){

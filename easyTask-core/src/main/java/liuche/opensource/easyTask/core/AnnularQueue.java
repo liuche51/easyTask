@@ -147,6 +147,7 @@ public class AnnularQueue {
         schedule.setTaskType(task.getTaskType());
         schedule.setPeriod(task.getPeriod());
         schedule.setUnit(task.getUnit());
+        schedule.setParam(task.getParam());
         if (task.getTaskType().equals(TaskType.ONECE))
             schedule.setEndTimestamp(task.getExecuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
         if (task.getTaskType().equals(TaskType.PERIOD)) {
