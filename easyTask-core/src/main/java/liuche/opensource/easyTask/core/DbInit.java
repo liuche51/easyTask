@@ -7,7 +7,12 @@ import java.sql.SQLException;
  class DbInit {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
     public static boolean hasInit=false;//数据库是否已经初始化
-    public static boolean init() {
+
+     /**
+      * 数据库初始化。需要避免多线程
+      * @return
+      */
+    public static synchronized boolean init() {
         try {
             boolean exist=ScheduleDao.existTable();
             if(exist)
@@ -27,7 +32,7 @@ import java.sql.SQLException;
             hasInit=true;
             return true;
         } catch (Exception e) {
-            log.error("easyTask.db init fail.");
+            log.error("easyTask.db init fail.",e);
             return false;
         }
     }

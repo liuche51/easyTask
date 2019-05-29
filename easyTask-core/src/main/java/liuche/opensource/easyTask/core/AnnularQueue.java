@@ -4,6 +4,7 @@ package liuche.opensource.easyTask.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -58,7 +59,9 @@ public class AnnularQueue {
      *
      * @param dispatchs
      */
-    public void setDispatchThreadPool(ThreadPoolExecutor dispatchs) {
+    public void setDispatchThreadPool(ThreadPoolExecutor dispatchs) throws Exception {
+        if (isRunning)
+            throw new Exception("please before AnnularQueue started set");
         this.dispatchs = dispatchs;
     }
 
@@ -67,8 +70,25 @@ public class AnnularQueue {
      *
      * @param workers
      */
-    public void setWorkerThreadPool(ThreadPoolExecutor workers) {
+    public void setWorkerThreadPool(ThreadPoolExecutor workers) throws Exception {
+        if (isRunning)
+            throw new Exception("please before AnnularQueue started set");
         this.workers = workers;
+    }
+
+    /**
+     * set Task Store Path.example  C:\\db
+     * @param path
+     * @throws Exception
+     */
+    public void setTaskStorePath(String path) throws Exception {
+        if (isRunning)
+            throw new Exception("please before AnnularQueue started set");
+        SqliteHelper.dbFilePath = path + "\\easyTask.db";
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 
     private void setDefaultThreadPool() {
@@ -156,6 +176,7 @@ public class AnnularQueue {
             else
                 schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
         }
+        task.setId(schedule.getId());
         Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
         schedule.setRun(proxy);
         AddSchedule(schedule);
@@ -171,14 +192,15 @@ public class AnnularQueue {
      *
      * @param list
      */
-    private void submitNewPeriodSchedule(List<Schedule> list) {
+    public void submitNewPeriodSchedule(List<Schedule> list) {
         for (Schedule schedule : list) {
             if (!TaskType.PERIOD.equals(schedule.getTaskType()))//周期任务需要重新提交新任务
                 continue;
-            Schedule schedule1 = schedule.clone();
             try {
+                Schedule schedule1 = schedule.clone();
                 schedule1.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule1.getPeriod(), schedule1.getUnit()));
                 AddSchedule(schedule1);
+                schedule1.save();
                 log.debug("已添加新周期任务:{}，旧任务:{}", schedule1.getId(), schedule.getId());
             } catch (Exception e) {
                 log.error("submitNewPeriodSchedule exception！", e);
@@ -198,7 +220,8 @@ public class AnnularQueue {
                     Object o = c.newInstance();
                     Task task = (Task) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
                     task.setId(schedule.getId());
-                    Runnable proxy = (Runnable) new ProxyFactory(o).getProxyInstance();
+                    task.setParam(schedule.getParam());
+                    Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
                     schedule.setRun(proxy);
                     AddSchedule(schedule);
                 } catch (Exception e) {

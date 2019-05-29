@@ -82,11 +82,11 @@ class Schedule implements Comparable {
         ScheduleDao.save(this);
     }
     public Schedule(){
-        this.id=UUID.randomUUID().toString().replace("-", "");
+        this.id=UUID.randomUUID().toString();
     }
     public Schedule clone(){
         Schedule schedule=new Schedule();
-        schedule.setId( UUID.randomUUID().toString().replace("-", ""));
+        schedule.setId( UUID.randomUUID().toString());
         schedule.setEndTimestamp(this.endTimestamp);
         schedule.setPeriod(this.period);
         schedule.setTaskType(this.taskType);
@@ -139,7 +139,7 @@ class Schedule implements Comparable {
                 builder.append(entry.getKey()).append("#;").append(entry.getValue()).append("&;");
             }
             return builder.toString();
-        }else return null;
+        }else return "";
     }
 
     /**

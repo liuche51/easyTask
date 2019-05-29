@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sqlite.util.StringUtils;
 
 /**
  * sqlite帮助类，直接创建该类示例，并调用相应的借口即可对sqlite数据库进行操作
@@ -25,27 +26,32 @@ class SqliteHelper {
     private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
-    private String dbFilePath = "";
+    /**
+     * 任务持久化保存路径。可以自定义
+     */
+    public static String dbFilePath = "";
 
     public SqliteHelper() {
         try {
-            try {
-                //非jar包时，得到classes目录。jar包时会报异常
-                String path1 = this.getClass().getClassLoader().getResource("").getPath();
-                this.dbFilePath = path1 + "easyTask.db";
-                logger.debug("db-path:{}", dbFilePath);
-            } catch (Exception e) {
+            if (this.dbFilePath==null||this.dbFilePath.equals("")) {
+                try {
+                    //非jar包时，得到classes目录。jar包时会报异常
+                    String path1 = this.getClass().getClassLoader().getResource("").getPath();
+                    this.dbFilePath = path1 + "easyTask.db";
+                } catch (Exception e) {
 
+                }
             }
-            if (this.dbFilePath.equals("")) {
+            if (this.dbFilePath==null||this.dbFilePath.equals("")) {
                 try {
                     //非jar包时，得到当前类所属jar包的classes目录。jar包时会得到所属运行jar包的物理路径（含.jar部分）
                     String path2 = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
                     this.dbFilePath = path2 + "-easyTask.db";
-                    logger.debug("db-path:{}", dbFilePath);
+
                 } catch (Exception e) {
                 }
             }
+            logger.debug("db-path:{}", dbFilePath);
             connection = getConnection(dbFilePath);
         } catch (Exception e) {
             logger.error("SqliteHelper get connection exception.", e);

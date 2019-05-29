@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class Task {
+public class Task{
     private String id;
     private LocalDateTime executeTime;
     private TaskType taskType=TaskType.ONECE;
@@ -72,4 +72,5 @@ public class Task {
     public void setParam(Map<String,String> param) {
         this.param = param;
     }
+
 }

@@ -6,12 +6,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 
- class ProxyFactory {
+class ProxyFactory {
     private static Logger log = LoggerFactory.getLogger(ProxyFactory.class);
-    private Object target;
-
-    public ProxyFactory(Object target) {
+    private Task target;
+    public ProxyFactory(Task target) {
         this.target = target;
     }
 
@@ -22,14 +23,18 @@ import java.lang.reflect.Proxy;
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        Task task = (Task) target;
-                        log.debug("任务:{} 代理执行开始", task.getId());
-                        Object returnValue = method.invoke(target, args);
-                        log.debug("任务:{} 代理执行结束", task.getId());
-                        boolean ret = ScheduleDao.delete(task.getId());
-                        if (ret)
-                            log.debug("任务:{} 执行完成，已从持久化记录中删除", task.getId());
-                        return returnValue;
+                        log.debug("任务:{} 代理执行开始", target.getId());
+                        try {
+                            return method.invoke(target, args);
+                        } catch (Exception e) {
+                            log.error("target proxy method execute exception！task.id="+target.getId(), e);
+                            throw e;
+                        }finally {
+                            log.debug("任务:{} 代理执行结束", target.getId());
+                            boolean ret = ScheduleDao.delete(target.getId());
+                            if (ret)
+                                log.debug("任务:{} 执行完成，已从持久化记录中删除", target.getId());
+                        }
                     }
                 }
         );
