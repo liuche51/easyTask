@@ -11,8 +11,8 @@ import java.util.List;
 
 class ProxyFactory {
     private static Logger log = LoggerFactory.getLogger(ProxyFactory.class);
-    private Task target;
-    public ProxyFactory(Task target) {
+    private Schedule target;
+    public ProxyFactory(Schedule target) {
         this.target = target;
     }
 
@@ -23,17 +23,20 @@ class ProxyFactory {
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        log.debug("任务:{} 代理执行开始", target.getId());
+                        String id=target.getId();
+                        if(target.getOldId()!=null)
+                            id=target.getOldId();
+                        log.debug("任务:{} 代理执行开始", id);
                         try {
                             return method.invoke(target, args);
                         } catch (Exception e) {
-                            log.error("target proxy method execute exception！task.id="+target.getId(), e);
+                            log.error("target proxy method execute exception！task.id="+id, e);
                             throw e;
                         }finally {
-                            log.debug("任务:{} 代理执行结束", target.getId());
-                            boolean ret = ScheduleDao.delete(target.getId());
+                            log.debug("任务:{} 代理执行结束", id);
+                            boolean ret = ScheduleDao.delete(id);
                             if (ret)
-                                log.debug("任务:{} 执行完成，已从持久化记录中删除", target.getId());
+                                log.debug("任务:{} 执行完成，已从持久化记录中删除", id);
                         }
                     }
                 }

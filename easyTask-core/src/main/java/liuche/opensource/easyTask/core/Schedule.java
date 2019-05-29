@@ -5,13 +5,15 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-class Schedule implements Comparable {
+public class Schedule implements Comparable {
     /**
      * 任务截止运行时间
      */
     private String id;
+    private String oldId;
     private long endTimestamp;
-    private TaskType taskType;
+    private TaskType taskType=TaskType.ONECE;
+    private boolean immediateExecute=false;
     private long period;
     private TimeUnit unit;
     private Runnable run;
@@ -20,6 +22,14 @@ class Schedule implements Comparable {
 
     public String getId() {
         return id;
+    }
+
+    public String getOldId() {
+        return oldId;
+    }
+
+    public void setOldId(String oldId) {
+        this.oldId = oldId;
     }
 
     public void setId(String id) {
@@ -59,7 +69,13 @@ class Schedule implements Comparable {
     public long getPeriod() {
         return period;
     }
+    public boolean isImmediateExecute() {
+        return immediateExecute;
+    }
 
+    public void setImmediateExecute(boolean immediateExecute) {
+        this.immediateExecute = immediateExecute;
+    }
     public void setPeriod(long period) {
         this.period = period;
     }
@@ -83,18 +99,6 @@ class Schedule implements Comparable {
     }
     public Schedule(){
         this.id=UUID.randomUUID().toString();
-    }
-    public Schedule clone(){
-        Schedule schedule=new Schedule();
-        schedule.setId( UUID.randomUUID().toString());
-        schedule.setEndTimestamp(this.endTimestamp);
-        schedule.setPeriod(this.period);
-        schedule.setTaskType(this.taskType);
-        schedule.setUnit(this.unit);
-        schedule.setRun(this.run);
-        schedule.setTaskClassPath(this.taskClassPath);
-        schedule.setParam(this.param);
-        return schedule;
     }
 
     /**

@@ -1,8 +1,8 @@
-import liuche.opensource.easyTask.core.Task;
+import liuche.opensource.easyTask.core.Schedule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Task1 extends Task implements Runnable{
+public class Task1 extends Schedule implements Runnable{
     private static Logger log = LoggerFactory.getLogger(Task1.class);
     @Override
     public void run() {

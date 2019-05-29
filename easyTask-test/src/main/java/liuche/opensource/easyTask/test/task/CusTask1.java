@@ -1,13 +1,12 @@
 package liuche.opensource.easyTask.test.task;
 
-import liuche.opensource.easyTask.core.Task;
-import liuche.opensource.easyTask.test.dto.Student;
+import liuche.opensource.easyTask.core.Schedule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class CusTask1 extends Task implements Runnable {
+public class CusTask1 extends Schedule implements Runnable {
     private static Logger log = LoggerFactory.getLogger(CusTask1.class);
 
     @Override

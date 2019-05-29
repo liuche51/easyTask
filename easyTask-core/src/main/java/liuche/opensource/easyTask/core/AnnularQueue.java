@@ -140,7 +140,8 @@ public class AnnularQueue {
                         List<Schedule> willremove = new LinkedList<>();
                         for (Schedule x : schedules) {
                             if (System.currentTimeMillis() >= x.getEndTimestamp()) {
-                                workers.submit(x.getRun());
+                                Runnable proxy = (Runnable) new ProxyFactory(x).getProxyInstance();
+                                workers.submit(proxy);
                                 willremove.add(x);
                                 log.debug("已提交分片:{} 一个任务:{}", second, x.getId());
                             }
@@ -162,28 +163,19 @@ public class AnnularQueue {
 
     }
 
-    public String submit(Task task) throws Exception {
-        Schedule schedule = new Schedule();
-        schedule.setTaskType(task.getTaskType());
-        schedule.setPeriod(task.getPeriod());
-        schedule.setUnit(task.getUnit());
-        schedule.setParam(task.getParam());
-        if (task.getTaskType().equals(TaskType.ONECE))
-            schedule.setEndTimestamp(task.getExecuteTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
-        if (task.getTaskType().equals(TaskType.PERIOD)) {
-            if (task.isImmediateExecute())
+    public String submit(Schedule schedule) throws Exception {
+        if (schedule.getTaskType().equals(TaskType.PERIOD)) {
+            if (schedule.isImmediateExecute())
                 schedule.setEndTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
             else
                 schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
         }
-        task.setId(schedule.getId());
-        Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
-        schedule.setRun(proxy);
         AddSchedule(schedule);
-        String path = task.getClass().getName();
+        String path = schedule.getClass().getName();
         schedule.setTaskClassPath(path);
         schedule.save();
-        log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), task.getExecuteTime().getSecond(), task.getExecuteTime().toLocalTime());
+        LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
+        log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), time.getSecond(), time.toLocalTime());
         return schedule.getId();
     }
 
@@ -197,11 +189,13 @@ public class AnnularQueue {
             if (!TaskType.PERIOD.equals(schedule.getTaskType()))//周期任务需要重新提交新任务
                 continue;
             try {
-                Schedule schedule1 = schedule.clone();
-                schedule1.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule1.getPeriod(), schedule1.getUnit()));
-                AddSchedule(schedule1);
-                schedule1.save();
-                log.debug("已添加新周期任务:{}，旧任务:{}", schedule1.getId(), schedule.getId());
+                String oldId=schedule.getId();
+                schedule.setId(UUID.randomUUID().toString());
+                schedule.setOldId(oldId);
+                schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
+                int slice=AddSchedule(schedule);
+                schedule.save();
+                log.debug("已添加新周期任务:{}，所属分片:{}，旧任务:{}", schedule.getId(),slice, oldId);
             } catch (Exception e) {
                 log.error("submitNewPeriodSchedule exception！", e);
             }
@@ -218,12 +212,15 @@ public class AnnularQueue {
                 try {
                     Class c = Class.forName(schedule.getTaskClassPath());
                     Object o = c.newInstance();
-                    Task task = (Task) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
-                    task.setId(schedule.getId());
-                    task.setParam(schedule.getParam());
-                    Runnable proxy = (Runnable) new ProxyFactory(task).getProxyInstance();
-                    schedule.setRun(proxy);
-                    AddSchedule(schedule);
+                    Schedule schedule1 = (Schedule) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
+                   schedule1.setId(schedule.getId());
+                    schedule1.setEndTimestamp(schedule.getEndTimestamp());
+                    schedule1.setPeriod(schedule.getPeriod());
+                    schedule1.setTaskType(schedule.getTaskType());
+                    schedule1.setUnit(schedule.getUnit());
+                    schedule1.setTaskClassPath(schedule.getTaskClassPath());
+                    schedule1.setParam(schedule.getParam());
+                    AddSchedule(schedule1);
                 } catch (Exception e) {
                     log.error("task:{} recover fail.", schedule.getId());
                 }
@@ -234,8 +231,8 @@ public class AnnularQueue {
         }
     }
 
-    private void AddSchedule(Schedule schedule1) {
-        LocalDateTime time = LocalDateTime.ofEpochSecond(schedule1.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
+    private int AddSchedule(Schedule schedule) {
+        LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
         int second = time.getSecond();
         Slice slice = slices[second];
         TreeSet<Schedule> list2 = slice.getList();
@@ -243,6 +240,7 @@ public class AnnularQueue {
             list2 = new TreeSet<>();
             slice.setList(list2);
         }
-        list2.add(schedule1);
+        list2.add(schedule);
+        return second;
     }
 }

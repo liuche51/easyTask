@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -30,7 +31,7 @@ public class Main {
                     new LinkedBlockingQueue<Runnable>()));
             annularQueue.start();
             CusTask1 task1 = new CusTask1();
-            task1.setExecuteTime(LocalDateTime.now().minusSeconds(-10));
+            task1.setEndTimestamp(LocalDateTime.now().minusSeconds(-10).toInstant(ZoneOffset.of("+8")).toEpochMilli());
             Map<String,String> param=new HashMap<String,String>(){
                 {
                     put("name","刘彻");
@@ -70,7 +71,7 @@ public class Main {
             public void run() {
                 for(int i=0;i<10000;i++) {
                     CusTask1 task1 = new CusTask1();
-                    task1.setExecuteTime(LocalDateTime.now().minusSeconds(-10));
+                    task1.setEndTimestamp(LocalDateTime.now().minusSeconds(-10).toInstant(ZoneOffset.of("+8")).toEpochMilli());
                     try {
                         AnnularQueue.getInstance().submit(task1);
                     } catch (Exception e) {
@@ -87,7 +88,7 @@ public class Main {
                     task1.setPeriod(1);
                     task1.setTaskType(TaskType.PERIOD);
                     task1.setUnit(TimeUnit.MINUTES);
-                    task1.setExecuteTime(LocalDateTime.now().minusSeconds(-10));
+                    task1.setImmediateExecute(true);
                     try {
                         AnnularQueue.getInstance().submit(task1);
                     } catch (Exception e) {
