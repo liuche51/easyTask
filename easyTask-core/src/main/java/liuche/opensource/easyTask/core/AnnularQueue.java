@@ -85,13 +85,25 @@ public class AnnularQueue {
     public void setTaskStorePath(String path) throws Exception {
         if (isRunning)
             throw new Exception("please before AnnularQueue started set");
-        SqliteHelper.dbFilePath = path + "\\easyTask.db";
+        SQLlitePool.dbFilePath = path + "\\easyTask.db";
         File file = new File(path);
         if (!file.exists()) {
             file.mkdirs();
         }
     }
 
+    /**
+     * set SQLlitePool Size，default qty 15
+     * @param count
+     * @throws Exception
+     */
+    public void setSQLlitePoolSize(int count) throws Exception{
+        if (isRunning)
+            throw new Exception("please before AnnularQueue started set");
+        if(count<1)
+            throw new Exception("poolSize must >1");
+        SQLlitePool.poolSize=count;
+    }
     private void setDefaultThreadPool() {
         if (this.dispatchs == null)
             this.dispatchs = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());

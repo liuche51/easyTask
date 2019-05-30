@@ -28,6 +28,7 @@ public class Main {
                     new LinkedBlockingQueue<Runnable>()));
             annularQueue.setWorkerThreadPool( new ThreadPoolExecutor(4, 8, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>()));
+            annularQueue.setSQLlitePoolSize(10);
             annularQueue.start();
             CusTask1 task1 = new CusTask1();
             task1.setEndTimestamp(LocalDateTime.now().minusSeconds(-10).toInstant(ZoneOffset.of("+8")).toEpochMilli());
@@ -52,7 +53,7 @@ public class Main {
                 }
             };
             task2.setParam(param2);
-            //annularQueue.submit(task1);
+            annularQueue.submit(task1);
             annularQueue.submit(task2);
             try {
             System.console().readLine();

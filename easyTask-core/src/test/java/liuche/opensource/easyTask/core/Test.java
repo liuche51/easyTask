@@ -4,11 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.tree.Tree;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,10 +16,54 @@ public class Test {
     private static Logger log = LoggerFactory.getLogger(Test.class);
     @org.junit.Test
     public void test(){
-
+        DbInit.init();
+        System.out.print("start time:"+LocalDateTime.now().toLocalTime());
+     for(int i=0;i<10000;i++){
+         try {
+             SqliteHelper.executeUpdateForSync("insert into schedule(id) values('"+ UUID.randomUUID()+"')");
+         } catch (SQLException e) {
+             e.printStackTrace();
+         } catch (ClassNotFoundException e) {
+             e.printStackTrace();
+         }
+     }
+        System.out.print("end time:"+LocalDateTime.now().toLocalTime());
+     //use 167s、177s
     }
     @org.junit.Test
     public void test1(){
-
+        DbInit.init();
+        System.out.print("start time:"+LocalDateTime.now().toLocalTime());
+        List<String> sqls=new ArrayList<>();
+        for(int i=0;i<10000;i++){
+                sqls.add("insert into schedule(id) values('"+ UUID.randomUUID()+"')");
+        }
+      /*  try {
+            SqliteHelper.executeUpdateForSync(sqls);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }*/
+        System.out.print("end time:"+LocalDateTime.now().toLocalTime());
+        //use 126s、135s
+    }
+    @org.junit.Test
+    public void test2(){
+        DbInit.init();
+        System.out.print("start time:"+LocalDateTime.now().toLocalTime());
+        StringBuilder sqls=new StringBuilder();
+        for(int i=0;i<10000;i++){
+            sqls.append("insert into schedule(id) values('"+ UUID.randomUUID()+"');");
+        }
+        try {
+            SqliteHelper.executeUpdateForSync(sqls.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        System.out.print("end time:"+LocalDateTime.now().toLocalTime());
+        //use 128s、136s
     }
 }

@@ -14,6 +14,7 @@ import java.sql.SQLException;
       */
     public static synchronized boolean init() {
         try {
+            SQLlitePool.getInstance().init();
             boolean exist=ScheduleDao.existTable();
             if(exist)
                 return true;

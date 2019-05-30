@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 class ScheduleExt {
     private String taskClassPath;
-    private String oldId;
+    private volatile String oldId;
     public String getTaskClassPath() {
         return taskClassPath;
     }

@@ -26,65 +26,9 @@ class SqliteHelper {
     private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
-    /**
-     * 任务持久化保存路径。可以自定义
-     */
-    public static String dbFilePath = "";
 
     public SqliteHelper() {
-        try {
-            if (this.dbFilePath==null||this.dbFilePath.equals("")) {
-                try {
-                    //非jar包时，得到classes目录。jar包时会报异常
-                    String path1 = this.getClass().getClassLoader().getResource("").getPath();
-                    this.dbFilePath = path1 + "easyTask.db";
-                } catch (Exception e) {
-
-                }
-            }
-            if (this.dbFilePath==null||this.dbFilePath.equals("")) {
-                try {
-                    //非jar包时，得到当前类所属jar包的classes目录。jar包时会得到所属运行jar包的物理路径（含.jar部分）
-                    String path2 = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-                    this.dbFilePath = path2 + "-easyTask.db";
-
-                } catch (Exception e) {
-                }
-            }
-            logger.debug("db-path:{}", dbFilePath);
-            connection = getConnection(dbFilePath);
-        } catch (Exception e) {
-            logger.error("SqliteHelper get connection exception.", e);
-            destroyed();
-        }
-
-    }
-
-    /**
-     * 构造函数
-     *
-     * @param dbFilePath sqlite db 文件路径
-     * @throws ClassNotFoundException
-     * @throws SQLException
-     */
-    public SqliteHelper(String dbFilePath) throws ClassNotFoundException, SQLException {
-        this.dbFilePath = dbFilePath;
-        connection = getConnection(dbFilePath);
-    }
-
-    /**
-     * 获取数据库连接
-     *
-     * @param dbFilePath db文件路径
-     * @return 数据库连接
-     * @throws ClassNotFoundException
-     * @throws SQLException
-     */
-    private Connection getConnection(String dbFilePath) throws ClassNotFoundException, SQLException {
-        Connection conn = null;
-        Class.forName("org.sqlite.JDBC");
-        conn = DriverManager.getConnection("jdbc:sqlite:" + dbFilePath);
-        return conn;
+        connection = SQLlitePool.getInstance().getConnection();
     }
 
     /**
@@ -152,16 +96,18 @@ class SqliteHelper {
         return resultSet;
     }
 
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        if (null == connection) connection = getConnection(dbFilePath);
-        return connection;
-    }
-
     private Statement getStatement() throws SQLException, ClassNotFoundException {
-        if (null == statement) statement = getConnection().createStatement();
+        if (null == statement) statement = connection.createStatement();
         return statement;
     }
 
+    /**
+     * 修改数据库专用。保证单互斥使用
+     * @param sql
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static synchronized int executeUpdateForSync(String sql) throws SQLException, ClassNotFoundException {
         SqliteHelper helper = new SqliteHelper();
         try {
@@ -188,7 +134,7 @@ class SqliteHelper {
                 statement = null;
             }
             if (null != connection) {
-                connection.close();
+                SQLlitePool.getInstance().freeConnection(connection);
                 connection = null;
             }
         } catch (SQLException e) {
