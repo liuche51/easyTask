@@ -191,7 +191,7 @@ public class AnnularQueue {
                 continue;
             try {
                 String oldId=schedule.getId();
-                //int oldvalue=schedule.getScheduleExt().getFlag().getAndSet(1);
+                //以下两行代码不可调换顺序，会影响代理那边的取值判断（多线程环境）
                 schedule.getScheduleExt().setOldId(oldId);
                 schedule.setId(UUID.randomUUID().toString());
                 schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));

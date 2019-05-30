@@ -23,6 +23,7 @@ class ProxyFactory {
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        //以下三行代码不可调换顺序，多线程环境下存在判断出错的概率
                         String id=target.getId();
                         if(target.getScheduleExt().getOldId()!=null)
                             id=target.getScheduleExt().getOldId();
