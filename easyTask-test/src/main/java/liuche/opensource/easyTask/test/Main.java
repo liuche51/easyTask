@@ -1,6 +1,7 @@
 package liuche.opensource.easyTask.test;
 
 import liuche.opensource.easyTask.core.AnnularQueue;
+import liuche.opensource.easyTask.core.Schedule;
 import liuche.opensource.easyTask.core.TaskType;
 import liuche.opensource.easyTask.test.task.CusTask1;
 import org.slf4j.Logger;
@@ -8,8 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import liuche.opensource.easyTask.core.TimeUnit;
@@ -17,8 +20,9 @@ import liuche.opensource.easyTask.core.TimeUnit;
 public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
     private static AnnularQueue annularQueue=AnnularQueue.getInstance();
+    private static Object obj=new Object();
     public static void main(String[] args){
-        allcustomSimpleSetTest();
+        highlyConcurrentTest();
     }
     static void allcustomSimpleSetTest(){
         AnnularQueue annularQueue=AnnularQueue.getInstance();
@@ -55,50 +59,54 @@ public class Main {
             task2.setParam(param2);
             annularQueue.submit(task1);
             annularQueue.submit(task2);
-            try {
-            System.console().readLine();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            obj.wait();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     static void highlyConcurrentTest(){
         annularQueue.start();
-        Thread th1=new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i=0;i<10000;i++) {
-                    CusTask1 task1 = new CusTask1();
-                    task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
-                    try {
-                        AnnularQueue.getInstance().submit(task1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        for(int i=0;i<20;i++){
+            Thread th1=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i=0;i<10;i++) {
+                        CusTask1 task1 = new CusTask1();
+                        task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
+                        try {
+                            AnnularQueue.getInstance().submit(task1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
-        });
-        Thread th2=new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i=0;i<10000;i++) {
-                    CusTask1 task1 = new CusTask1();
-                    task1.setPeriod(1);
-                    task1.setTaskType(TaskType.PERIOD);
-                    task1.setUnit(TimeUnit.MINUTES);
-                    task1.setImmediateExecute(true);
-                    try {
-                        AnnularQueue.getInstance().submit(task1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            });
+            //th1.start();
+        }
+        for(int i=0;i<20;i++){
+            Thread th2=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i=0;i<10;i++) {
+                        CusTask1 task1 = new CusTask1();
+                        task1.setPeriod(30);
+                        task1.setTaskType(TaskType.PERIOD);
+                        task1.setUnit(TimeUnit.SECONDS);
+                        task1.setImmediateExecute(true);
+                        try {
+                            AnnularQueue.getInstance().submit(task1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
-        });
-        th1.start();
-        th2.start();
-        System.console().readLine();
+            });
+            //th2.start();
+        }
+        try {
+            obj.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

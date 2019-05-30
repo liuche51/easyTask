@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class Schedule implements Comparable {
+public class Schedule{
     /**
      * 任务截止运行时间
      */
@@ -129,7 +129,7 @@ public class Schedule implements Comparable {
      * @return
      */
     public static Map<String,String> deserializeMap(String param){
-        if(param!=null&&param!=""){
+        if(param!=null&&!"".equals(param)){
             Map<String,String> map=new HashMap<>();
             String[] temp=param.split("&;");
             for(int i=0;i<temp.length;i++){
@@ -138,20 +138,5 @@ public class Schedule implements Comparable {
             }
             return map;
         }else return null;
-    }
-    /**
-     * 按任务截止触发时间顺序排序
-     *
-     * @param o
-     * @return
-     */
-    @Override
-    public int compareTo(Object o) {
-        Schedule schedule = (Schedule) o;
-        if (this.endTimestamp >= schedule.endTimestamp)
-            return 1;
-        else
-            return -1;
-
     }
 }

@@ -151,7 +151,7 @@ public class AnnularQueue {
                 lastSecond = second;
                 dispatchs.submit(new Runnable() {
                     public void run() {
-                        TreeSet<Schedule> schedules = slice.getList();
+                        ConcurrentSkipListSet<Schedule> schedules = slice.getList();
                         List<Schedule> willremove = new LinkedList<>();
                         for (Schedule x : schedules) {
                             if (System.currentTimeMillis() >= x.getEndTimestamp()) {
@@ -251,11 +251,7 @@ public class AnnularQueue {
         ZonedDateTime time =ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
         int second = time.getSecond();
         Slice slice = slices[second];
-        TreeSet<Schedule> list2 = slice.getList();
-        if (list2 == null) {
-            list2 = new TreeSet<>();
-            slice.setList(list2);
-        }
+        ConcurrentSkipListSet<Schedule> list2 = slice.getList();
         list2.add(schedule);
         return second;
     }

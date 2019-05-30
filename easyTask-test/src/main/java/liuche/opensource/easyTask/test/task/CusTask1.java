@@ -12,7 +12,8 @@ public class CusTask1 extends Schedule implements Runnable {
     @Override
     public void run() {
         Map<String, String> param = getParam();
-        log.info("任务1已执行!姓名:{} 生日:{} 年龄:{}", param.get("name"), param.get("birthday"), param.get("age"));
+        if (param != null && param.size() > 0)
+            log.info("任务1已执行!姓名:{} 生日:{} 年龄:{}", param.get("name"), param.get("birthday"), param.get("age"));
 
     }
 }
