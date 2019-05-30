@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,7 +35,7 @@ class ScheduleDao {
             String sql = "insert into schedule(id,class_path,execute_time,task_type,period,unit,param,create_time) values('"
                     + schedule.getId() + "','" + schedule.getScheduleExt().getTaskClassPath() + "'," + schedule.getEndTimestamp()
                     + ",'" + schedule.getTaskType().name() + "'," + schedule.getPeriod() + ",'" + (schedule.getUnit() == null ? "" : schedule.getUnit().name())
-                    +"','"+Schedule.serializeMap(schedule.getParam())+ "','" + LocalDateTime.now().toLocalTime() + "');";
+                    +"','"+Schedule.serializeMap(schedule.getParam())+ "','" + ZonedDateTime.now().toLocalTime() + "');";
             int count = SqliteHelper.executeUpdateForSync(sql);
             if (count > 0) {
                 log.debug("任务:{} 已经持久化", schedule.getId());

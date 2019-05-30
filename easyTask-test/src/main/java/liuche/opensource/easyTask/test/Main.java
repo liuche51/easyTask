@@ -6,7 +6,7 @@ import liuche.opensource.easyTask.test.task.CusTask1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class Main {
             annularQueue.setSQLlitePoolSize(10);
             annularQueue.start();
             CusTask1 task1 = new CusTask1();
-            task1.setEndTimestamp(LocalDateTime.now().minusSeconds(-10).toInstant(ZoneOffset.of("+8")).toEpochMilli());
+            task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
             Map<String,String> param=new HashMap<String,String>(){
                 {
                     put("name","刘彻");
@@ -71,7 +71,7 @@ public class Main {
             public void run() {
                 for(int i=0;i<10000;i++) {
                     CusTask1 task1 = new CusTask1();
-                    task1.setEndTimestamp(LocalDateTime.now().minusSeconds(-10).toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                    task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
                     try {
                         AnnularQueue.getInstance().submit(task1);
                     } catch (Exception e) {

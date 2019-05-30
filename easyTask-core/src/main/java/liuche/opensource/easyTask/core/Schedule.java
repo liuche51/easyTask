@@ -1,6 +1,6 @@
 package liuche.opensource.easyTask.core;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,13 +97,13 @@ public class Schedule implements Comparable {
         switch (unit)
         {
             case DAYS:
-                return LocalDateTime.now().plusDays(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+                return ZonedDateTime.now().plusDays(period).toInstant().toEpochMilli();
             case HOURS:
-                return LocalDateTime.now().plusHours(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+                return ZonedDateTime.now().plusHours(period).toInstant().toEpochMilli();
             case MINUTES:
-                return LocalDateTime.now().plusMinutes(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+                return ZonedDateTime.now().plusMinutes(period).toInstant().toEpochMilli();
             case SECONDS:
-                return LocalDateTime.now().plusSeconds(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+                return ZonedDateTime.now().plusSeconds(period).toInstant().toEpochMilli();
                 default:throw new Exception("unSupport TimeUnit type");
         }
     }

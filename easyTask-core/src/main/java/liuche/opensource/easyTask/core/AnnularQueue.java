@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalField;
 import java.util.LinkedList;
@@ -135,7 +137,7 @@ public class AnnularQueue {
             setDefaultThreadPool();
             int lastSecond = 0;
             while (true) {
-                int second = LocalDateTime.now().getSecond();
+                int second = ZonedDateTime.now().getSecond();
                 if (second == lastSecond) {
                     try {
                         Thread.sleep(500l);
@@ -179,7 +181,7 @@ public class AnnularQueue {
     public String submit(Schedule schedule) throws Exception {
         if (schedule.getTaskType().equals(TaskType.PERIOD)) {
             if (schedule.isImmediateExecute())
-                schedule.setEndTimestamp(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                schedule.setEndTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
             else
                 schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
         }
@@ -187,7 +189,7 @@ public class AnnularQueue {
         String path = schedule.getClass().getName();
         schedule.getScheduleExt().setTaskClassPath(path);
         schedule.save();
-        LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
+        ZonedDateTime time = ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
         log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), time.getSecond(), time.toLocalTime());
         return schedule.getId();
     }
@@ -246,7 +248,7 @@ public class AnnularQueue {
     }
 
     private int AddSchedule(Schedule schedule) {
-        LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
+        ZonedDateTime time =ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
         int second = time.getSecond();
         Slice slice = slices[second];
         TreeSet<Schedule> list2 = slice.getList();
