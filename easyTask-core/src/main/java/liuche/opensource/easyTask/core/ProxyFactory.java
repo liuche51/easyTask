@@ -24,8 +24,8 @@ class ProxyFactory {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         String id=target.getId();
-                        if(target.getOldId()!=null)
-                            id=target.getOldId();
+                        if(target.getScheduleExt().getOldId()!=null)
+                            id=target.getScheduleExt().getOldId();
                         log.debug("任务:{} 代理执行开始", id);
                         try {
                             return method.invoke(target, args);

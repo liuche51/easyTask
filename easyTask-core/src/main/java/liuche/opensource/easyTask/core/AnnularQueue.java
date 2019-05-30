@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 环形任务队列
@@ -172,7 +173,7 @@ public class AnnularQueue {
         }
         AddSchedule(schedule);
         String path = schedule.getClass().getName();
-        schedule.setTaskClassPath(path);
+        schedule.getScheduleExt().setTaskClassPath(path);
         schedule.save();
         LocalDateTime time = LocalDateTime.ofEpochSecond(schedule.getEndTimestamp(), 0, ZoneOffset.ofHours(8));
         log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), time.getSecond(), time.toLocalTime());
@@ -190,8 +191,9 @@ public class AnnularQueue {
                 continue;
             try {
                 String oldId=schedule.getId();
+                //int oldvalue=schedule.getScheduleExt().getFlag().getAndSet(1);
+                schedule.getScheduleExt().setOldId(oldId);
                 schedule.setId(UUID.randomUUID().toString());
-                schedule.setOldId(oldId);
                 schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
                 int slice=AddSchedule(schedule);
                 schedule.save();
@@ -210,7 +212,7 @@ public class AnnularQueue {
         try {
             for (Schedule schedule : list) {
                 try {
-                    Class c = Class.forName(schedule.getTaskClassPath());
+                    Class c = Class.forName(schedule.getScheduleExt().getTaskClassPath());
                     Object o = c.newInstance();
                     Schedule schedule1 = (Schedule) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
                    schedule1.setId(schedule.getId());
@@ -218,11 +220,11 @@ public class AnnularQueue {
                     schedule1.setPeriod(schedule.getPeriod());
                     schedule1.setTaskType(schedule.getTaskType());
                     schedule1.setUnit(schedule.getUnit());
-                    schedule1.setTaskClassPath(schedule.getTaskClassPath());
+                    schedule1.getScheduleExt().setTaskClassPath(schedule.getScheduleExt().getTaskClassPath());
                     schedule1.setParam(schedule.getParam());
                     AddSchedule(schedule1);
                 } catch (Exception e) {
-                    log.error("task:{} recover fail.", schedule.getId());
+                    log.error("schedule:{} recover fail.", schedule.getId());
                 }
             }
             log.debug("easyTask recover success! count:{}", list.size());

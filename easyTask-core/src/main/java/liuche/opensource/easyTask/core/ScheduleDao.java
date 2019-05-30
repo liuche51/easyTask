@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 class ScheduleDao {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
@@ -34,7 +33,7 @@ class ScheduleDao {
             if (!DbInit.hasInit)
                 DbInit.init();
             String sql = "insert into schedule(id,class_path,execute_time,task_type,period,unit,param,create_time) values('"
-                    + schedule.getId() + "','" + schedule.getTaskClassPath() + "'," + schedule.getEndTimestamp()
+                    + schedule.getId() + "','" + schedule.getScheduleExt().getTaskClassPath() + "'," + schedule.getEndTimestamp()
                     + ",'" + schedule.getTaskType().name() + "'," + schedule.getPeriod() + ",'" + (schedule.getUnit() == null ? "" : schedule.getUnit().name())
                     +"','"+Schedule.serializeMap(schedule.getParam())+ "','" + LocalDateTime.now().toLocalTime() + "');";
             int count = SqliteHelper.executeUpdateForSync(sql);
@@ -64,7 +63,7 @@ class ScheduleDao {
                     String param = resultSet.getString("param");
                     Schedule schedule = new Schedule();
                     schedule.setId(id);
-                    schedule.setTaskClassPath(classPath);
+                    schedule.getScheduleExt().setTaskClassPath(classPath);
                     schedule.setEndTimestamp(executeTime);
                     schedule.setParam(Schedule.deserializeMap(param));
                     if ("PERIOD".equals(taskType))
@@ -84,15 +83,6 @@ class ScheduleDao {
                             break;
                         case "SECONDS":
                             schedule.setUnit(TimeUnit.SECONDS);
-                            break;
-                        case "MILLISECONDS":
-                            schedule.setUnit(TimeUnit.MILLISECONDS);
-                            break;
-                        case "MICROSECONDS":
-                            schedule.setUnit(TimeUnit.MICROSECONDS);
-                            break;
-                        case "NANOSECONDS":
-                            schedule.setUnit(TimeUnit.NANOSECONDS);
                             break;
                         default:
                             break;

@@ -10,10 +10,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import liuche.opensource.easyTask.core.TimeUnit;
 
 public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
@@ -25,9 +24,9 @@ public class Main {
         AnnularQueue annularQueue=AnnularQueue.getInstance();
         try {
             annularQueue.setTaskStorePath("C:\\db\\");
-            annularQueue.setDispatchThreadPool( new ThreadPoolExecutor(4, 4, 1000, TimeUnit.MILLISECONDS,
+            annularQueue.setDispatchThreadPool( new ThreadPoolExecutor(4, 4, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>()));
-            annularQueue.setWorkerThreadPool( new ThreadPoolExecutor(4, 8, 1000, TimeUnit.MILLISECONDS,
+            annularQueue.setWorkerThreadPool( new ThreadPoolExecutor(4, 8, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>()));
             annularQueue.start();
             CusTask1 task1 = new CusTask1();

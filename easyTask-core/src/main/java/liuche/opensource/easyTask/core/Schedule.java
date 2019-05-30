@@ -2,36 +2,27 @@ package liuche.opensource.easyTask.core;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class Schedule implements Comparable {
     /**
      * 任务截止运行时间
      */
     private String id;
-    private String oldId;
     private long endTimestamp;
     private TaskType taskType=TaskType.ONECE;
     private boolean immediateExecute=false;
     private long period;
     private TimeUnit unit;
     private Runnable run;
-    private String taskClassPath;
+   private ScheduleExt scheduleExt=new ScheduleExt();
     private Map<String,String> param;
 
     public String getId() {
         return id;
     }
-
-    public String getOldId() {
-        return oldId;
-    }
-
-    public void setOldId(String oldId) {
-        this.oldId = oldId;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -42,22 +33,6 @@ public class Schedule implements Comparable {
 
     public void setEndTimestamp(long endTimestamp) {
         this.endTimestamp = endTimestamp;
-    }
-
-    public Runnable getRun() {
-        return run;
-    }
-
-    public void setRun(Runnable run) {
-        this.run = run;
-    }
-
-    public String getTaskClassPath() {
-        return taskClassPath;
-    }
-
-    public void setTaskClassPath(String taskClassPath) {
-        this.taskClassPath = taskClassPath;
     }
     public TaskType getTaskType() {
         return taskType;
@@ -91,6 +66,14 @@ public class Schedule implements Comparable {
         return param;
     }
 
+    public ScheduleExt getScheduleExt() {
+        return scheduleExt;
+    }
+
+    public void setScheduleExt(ScheduleExt scheduleExt) {
+        this.scheduleExt = scheduleExt;
+    }
+
     public void setParam(Map<String,String> param) {
         this.param = param;
     }
@@ -98,7 +81,7 @@ public class Schedule implements Comparable {
         ScheduleDao.save(this);
     }
     public Schedule(){
-        this.id=UUID.randomUUID().toString();
+        this.id= UUID.randomUUID().toString();
     }
 
     /**
@@ -121,12 +104,6 @@ public class Schedule implements Comparable {
                 return LocalDateTime.now().plusMinutes(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
             case SECONDS:
                 return LocalDateTime.now().plusSeconds(period).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-            case MILLISECONDS:
-                return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period;
-            case MICROSECONDS:
-                return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period/1000;
-            case NANOSECONDS:
-                return LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()+period/1000000;
                 default:throw new Exception("unSupport TimeUnit type");
         }
     }
