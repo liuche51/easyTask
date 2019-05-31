@@ -10,7 +10,6 @@ public class Schedule{
     /**
      * 任务截止运行时间
      */
-    private String id;
     private long endTimestamp;
     private TaskType taskType=TaskType.ONECE;
     private boolean immediateExecute=false;
@@ -20,12 +19,7 @@ public class Schedule{
    private ScheduleExt scheduleExt=new ScheduleExt();
     private Map<String,String> param;
 
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
+
 
     public long getEndTimestamp() {
         return endTimestamp;

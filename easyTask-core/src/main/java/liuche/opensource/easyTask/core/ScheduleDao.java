@@ -36,16 +36,16 @@ class ScheduleDao {
             if (!DbInit.hasInit)
                 DbInit.init();
             String sql = "insert into schedule(id,class_path,execute_time,task_type,period,unit,param,create_time) values('"
-                    + schedule.getId() + "','" + schedule.getScheduleExt().getTaskClassPath() + "'," + schedule.getEndTimestamp()
+                    + schedule.getScheduleExt().getId() + "','" + schedule.getScheduleExt().getTaskClassPath() + "'," + schedule.getEndTimestamp()
                     + ",'" + schedule.getTaskType().name() + "'," + schedule.getPeriod() + ",'" + (schedule.getUnit() == null ? "" : schedule.getUnit().name())
                     + "','" + Schedule.serializeMap(schedule.getParam()) + "','" + ZonedDateTime.now().toLocalTime() + "');";
             int count = SqliteHelper.executeUpdateForSync(sql);
             if (count > 0) {
-                log.debug("任务:{} 已经持久化", schedule.getId());
+                log.debug("任务:{} 已经持久化", schedule.getScheduleExt().getId());
                 return true;
             }
         } catch (Exception e) {
-            log.error("ScheduleDao.save Exception taskId:{} :{}",schedule.getId(), e);
+            log.error("ScheduleDao.save Exception taskId:{} :{}",schedule.getScheduleExt().getId(), e);
         }
         return false;
     }
@@ -65,7 +65,7 @@ class ScheduleDao {
                     String unit = resultSet.getString("unit");
                     String param = resultSet.getString("param");
                     Schedule schedule = new Schedule();
-                    schedule.setId(id);
+                    schedule.getScheduleExt().setId(id);
                     schedule.getScheduleExt().setTaskClassPath(classPath);
                     schedule.setEndTimestamp(executeTime);
                     schedule.setParam(Schedule.deserializeMap(param));

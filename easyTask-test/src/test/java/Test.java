@@ -24,16 +24,13 @@ public class Test {
             ConcurrentSkipListSet<Schedule> list=new ConcurrentSkipListSet<>(new ScheduleComparator());
             for(int i=0;i<10;i++){
                 Schedule schedule=new Schedule();
-                schedule.setId(String.valueOf(i));
                 schedule.setEndTimestamp(ZonedDateTime.now().plusSeconds(1).toInstant().toEpochMilli());
                 list.add(schedule);
             }
         Schedule schedule=new Schedule();
-        schedule.setId(String.valueOf(11));
         schedule.setEndTimestamp(ZonedDateTime.now().plusSeconds(-10).toInstant().toEpochMilli());
         list.add(schedule);
         list.forEach(x->{
-            System.out.println(x.getId());
         });
             //System.out.print(list.size());
         }catch (Exception e){
@@ -47,16 +44,13 @@ public class Test {
         TreeSet<Schedule> list=new TreeSet<>(new ScheduleComparator());
         for(int i=0;i<10;i++){
             Schedule schedule=new Schedule();
-            schedule.setId(String.valueOf(i));
             schedule.setEndTimestamp(ZonedDateTime.now().plusSeconds(1).toInstant().toEpochMilli());
             list.add(schedule);
         }
         Schedule schedule=new Schedule();
-        schedule.setId(String.valueOf(11));
         schedule.setEndTimestamp(ZonedDateTime.now().plusSeconds(-10).toInstant().toEpochMilli());
         list.add(schedule);
         list.forEach(x->{
-            System.out.println(x.getId());
         });
     }
     @org.junit.Test
@@ -65,13 +59,9 @@ public class Test {
         for(int i=0;i<10;i++){
             Schedule schedule=new Schedule();
             schedule.setEndTimestamp(ZonedDateTime.now().plusSeconds(1).toInstant().toEpochMilli());
-            schedule.setId(schedule.getEndTimestamp()+"+"+schedule.getId().split("-")[0]);
-            list.put(schedule.getId(),schedule);
         }
         Schedule schedule=new Schedule();
         schedule.setEndTimestamp(ZonedDateTime.now().plusSeconds(-10).toInstant().toEpochMilli());
-        schedule.setId(schedule.getEndTimestamp()+"+"+schedule.getId().split("-")[0]);
-        list.put(schedule.getId(),schedule);
         for (Map.Entry<String,Schedule> entry:list.entrySet()){
             System.out.println(entry.getKey());
         }

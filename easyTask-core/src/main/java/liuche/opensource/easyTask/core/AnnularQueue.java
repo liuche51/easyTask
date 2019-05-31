@@ -157,7 +157,7 @@ public class AnnularQueue {
                                 workers.submit(proxy);
                                 willremove.add(s);
                                 schedules.remove(entry.getKey());
-                                log.debug("已提交分片:{} 一个任务:{}", second, s.getId());
+                                log.debug("已提交分片:{} 一个任务:{}", second, s.getScheduleExt().getId());
                             }
                             //因为列表是已经按截止执行时间排好序的，可以节省后面元素的过期判断
                             else break;
@@ -177,7 +177,7 @@ public class AnnularQueue {
     }
 
     public String submit(Schedule schedule) throws Exception {
-        schedule.setId(Util.generateUniqueId());
+        schedule.getScheduleExt().setId(Util.generateUniqueId());
         if (schedule.getTaskType().equals(TaskType.PERIOD)) {
             if (schedule.isImmediateExecute())
                 schedule.setEndTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
@@ -186,11 +186,12 @@ public class AnnularQueue {
         }
         String path = schedule.getClass().getName();
         schedule.getScheduleExt().setTaskClassPath(path);
+        //以下两行代码不要调换，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
         schedule.save();
         AddSchedule(schedule);
         ZonedDateTime time = ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
-        log.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}",schedule.getTaskType().name(), schedule.getId(), time.getSecond(), time.toLocalTime(),Thread.currentThread().getId());
-        return schedule.getId();
+        log.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}",schedule.getTaskType().name(), schedule.getScheduleExt().getId(), time.getSecond(), time.toLocalTime(),Thread.currentThread().getId());
+        return schedule.getScheduleExt().getId();
     }
 
     /**
@@ -206,17 +207,18 @@ public class AnnularQueue {
                 Class c = Class.forName(schedule.getScheduleExt().getTaskClassPath());
                 Object o = c.newInstance();
                 Schedule schedule1 = (Schedule) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
-                schedule1.setId(Util.generateUniqueId());
+                schedule1.getScheduleExt().setId(Util.generateUniqueId());
                 schedule1.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
                 schedule1.setPeriod(schedule.getPeriod());
                 schedule1.setTaskType(schedule.getTaskType());
                 schedule1.setUnit(schedule.getUnit());
                 schedule1.getScheduleExt().setTaskClassPath(schedule.getScheduleExt().getTaskClassPath());
                 schedule1.setParam(schedule.getParam());
+                //以下两行代码不要调换，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
                 schedule1.save();
                 AddSchedule(schedule1);
                 int slice=AddSchedule(schedule);
-                log.debug("已添加新周期任务:{}，所属分片:{}，旧任务:{} 线程ID:{}", schedule1.getId(),slice, schedule.getId(),Thread.currentThread().getId());
+                log.debug("已添加新周期任务:{}，所属分片:{}，旧任务:{} 线程ID:{}", schedule1.getScheduleExt().getId(),slice, schedule.getScheduleExt().getId(),Thread.currentThread().getId());
             } catch (Exception e) {
                 log.error("submitNewPeriodSchedule exception！", e);
             }
@@ -234,7 +236,7 @@ public class AnnularQueue {
                     Class c = Class.forName(schedule.getScheduleExt().getTaskClassPath());
                     Object o = c.newInstance();
                     Schedule schedule1 = (Schedule) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
-                   schedule1.setId(schedule.getId());
+                   schedule1.getScheduleExt().setId(schedule.getScheduleExt().getId());
                     schedule1.setEndTimestamp(schedule.getEndTimestamp());
                     schedule1.setPeriod(schedule.getPeriod());
                     schedule1.setTaskType(schedule.getTaskType());
@@ -243,7 +245,7 @@ public class AnnularQueue {
                     schedule1.setParam(schedule.getParam());
                     AddSchedule(schedule1);
                 } catch (Exception e) {
-                    log.error("schedule:{} recover fail.", schedule.getId());
+                    log.error("schedule:{} recover fail.", schedule.getScheduleExt().getId());
                 }
             }
             log.debug("easyTask recover success! count:{}", list.size());
