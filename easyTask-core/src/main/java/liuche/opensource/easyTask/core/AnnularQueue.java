@@ -157,7 +157,7 @@ public class AnnularQueue {
                                 workers.submit(proxy);
                                 willremove.add(s);
                                 schedules.remove(entry.getKey());
-                                log.debug("已提交分片:{} 一个任务:{}", second, s.getScheduleExt().getId());
+                                log.debug("工作任务:{} 已提交分片:{}", s.getScheduleExt().getId(),second);
                             }
                             //因为列表是已经按截止执行时间排好序的，可以节省后面元素的过期判断
                             else break;
@@ -204,21 +204,10 @@ public class AnnularQueue {
             if (!TaskType.PERIOD.equals(schedule.getTaskType()))//周期任务需要重新提交新任务
                 continue;
             try {
-                Class c = Class.forName(schedule.getScheduleExt().getTaskClassPath());
-                Object o = c.newInstance();
-                Schedule schedule1 = (Schedule) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
-                schedule1.getScheduleExt().setId(Util.generateUniqueId());
-                schedule1.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
-                schedule1.setPeriod(schedule.getPeriod());
-                schedule1.setTaskType(schedule.getTaskType());
-                schedule1.setUnit(schedule.getUnit());
-                schedule1.getScheduleExt().setTaskClassPath(schedule.getScheduleExt().getTaskClassPath());
-                schedule1.setParam(schedule.getParam());
-                //以下两行代码不要调换，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
-                schedule1.save();
-                AddSchedule(schedule1);
+                schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
+                AddSchedule(schedule);
                 int slice=AddSchedule(schedule);
-                log.debug("已添加新周期任务:{}，所属分片:{}，旧任务:{} 线程ID:{}", schedule1.getScheduleExt().getId(),slice, schedule.getScheduleExt().getId(),Thread.currentThread().getId());
+                log.debug("已重新提交周期任务:{}，所属分片:{}，线程ID:{}", schedule.getScheduleExt().getId(),slice,Thread.currentThread().getId());
             } catch (Exception e) {
                 log.error("submitNewPeriodSchedule exception！", e);
             }

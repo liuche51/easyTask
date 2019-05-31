@@ -32,9 +32,11 @@ class ProxyFactory {
                             throw e;
                         }finally {
                             log.debug("任务:{} 代理执行结束", id);
-                            boolean ret = ScheduleDao.delete(id);
-                            if (ret)
-                                log.debug("任务:{} 执行完成，已从持久化记录中删除", id);
+                            if (target.getTaskType().equals(TaskType.ONECE)){
+                                boolean ret = ScheduleDao.delete(id);
+                                if (ret)
+                                    log.debug("任务:{} 执行完成，已从持久化记录中删除", id);
+                            }
                         }
                     }
                 }
