@@ -41,6 +41,7 @@ public class Main {
                     put("name","刘彻");
                     put("birthday","1988-1-1");
                     put("age","25");
+                    put("threadid",String.valueOf(Thread.currentThread().getId()));
                 }
             };
             task1.setParam(param);
@@ -54,6 +55,7 @@ public class Main {
                     put("name","王林");
                     put("birthday","1986-1-1");
                     put("age","32");
+                    put("threadid",String.valueOf(Thread.currentThread().getId()));
                 }
             };
             task2.setParam(param2);
@@ -73,6 +75,15 @@ public class Main {
                     for(int i=0;i<10;i++) {
                         CusTask1 task1 = new CusTask1();
                         task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
+                        Map<String,String> param=new HashMap<String,String>(){
+                            {
+                                put("name","刘彻");
+                                put("birthday","1988-1-1");
+                                put("age","25");
+                                put("threadid",String.valueOf(Thread.currentThread().getId()));
+                            }
+                        };
+                        task1.setParam(param);
                         try {
                             AnnularQueue.getInstance().submit(task1);
                         } catch (Exception e) {
@@ -81,7 +92,7 @@ public class Main {
                     }
                 }
             });
-            //th1.start();
+            th1.start();
         }
         for(int i=0;i<20;i++){
             Thread th2=new Thread(new Runnable() {
@@ -93,6 +104,15 @@ public class Main {
                         task1.setTaskType(TaskType.PERIOD);
                         task1.setUnit(TimeUnit.SECONDS);
                         task1.setImmediateExecute(true);
+                        Map<String,String> param=new HashMap<String,String>(){
+                            {
+                                put("name","王林");
+                                put("birthday","1986-1-1");
+                                put("age","35");
+                                put("threadid",String.valueOf(Thread.currentThread().getId()));
+                            }
+                        };
+                        task1.setParam(param);
                         try {
                             AnnularQueue.getInstance().submit(task1);
                         } catch (Exception e) {
@@ -101,7 +121,7 @@ public class Main {
                     }
                 }
             });
-            //th2.start();
+            th2.start();
         }
         try {
             obj.wait();

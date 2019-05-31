@@ -11,10 +11,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalField;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -151,19 +148,20 @@ public class AnnularQueue {
                 lastSecond = second;
                 dispatchs.submit(new Runnable() {
                     public void run() {
-                        ConcurrentSkipListSet<Schedule> schedules = slice.getList();
+                        ConcurrentSkipListMap<String,Schedule> schedules = slice.getList();
                         List<Schedule> willremove = new LinkedList<>();
-                        for (Schedule x : schedules) {
-                            if (System.currentTimeMillis() >= x.getEndTimestamp()) {
-                                Runnable proxy = (Runnable) new ProxyFactory(x).getProxyInstance();
+                        for (Map.Entry<String,Schedule> entry:schedules.entrySet()) {
+                            Schedule s=entry.getValue();
+                            if (System.currentTimeMillis() >= s.getEndTimestamp()) {
+                                Runnable proxy = (Runnable) new ProxyFactory(s).getProxyInstance();
                                 workers.submit(proxy);
-                                willremove.add(x);
-                                log.debug("已提交分片:{} 一个任务:{}", second, x.getId());
+                                willremove.add(s);
+                                schedules.remove(entry.getKey());
+                                log.debug("已提交分片:{} 一个任务:{}", second, s.getId());
                             }
                             //因为列表是已经按截止执行时间排好序的，可以节省后面元素的过期判断
                             else break;
                         }
-                        schedules.removeAll(willremove);
                         submitNewPeriodSchedule(willremove);
                     }
                 });
@@ -251,8 +249,8 @@ public class AnnularQueue {
         ZonedDateTime time =ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
         int second = time.getSecond();
         Slice slice = slices[second];
-        ConcurrentSkipListSet<Schedule> list2 = slice.getList();
-        list2.add(schedule);
+        ConcurrentSkipListMap<String,Schedule> list2 = slice.getList();
+        list2.put(schedule.getEndTimestamp()+"+"+schedule.getId().split("-")[0],schedule);
         return second;
     }
 }

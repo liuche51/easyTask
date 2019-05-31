@@ -2,16 +2,17 @@ package liuche.opensource.easyTask.core;
 
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 class Slice {
-    private ConcurrentSkipListSet<Schedule> list=new ConcurrentSkipListSet<>(new ScheduleComparator());;
+    private ConcurrentSkipListMap<String,Schedule> list=new ConcurrentSkipListMap<String,Schedule>();;
 
-    public ConcurrentSkipListSet<Schedule> getList() {
+    public ConcurrentSkipListMap<String,Schedule> getList() {
         return list;
     }
 
-    public void setList(ConcurrentSkipListSet<Schedule> list) {
+    public void setList(ConcurrentSkipListMap<String,Schedule> list) {
         this.list = list;
     }
 }

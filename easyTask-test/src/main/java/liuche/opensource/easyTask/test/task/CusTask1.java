@@ -13,7 +13,7 @@ public class CusTask1 extends Schedule implements Runnable {
     public void run() {
         Map<String, String> param = getParam();
         if (param != null && param.size() > 0)
-            log.info("任务1已执行!姓名:{} 生日:{} 年龄:{}", param.get("name"), param.get("birthday"), param.get("age"));
+            log.info("任务1已执行!姓名:{} 生日:{} 年龄:{} 线程ID:{}", param.get("name"), param.get("birthday"), param.get("age"),param.get("threadid"));
 
     }
 }

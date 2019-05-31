@@ -81,7 +81,7 @@ public class Schedule{
         ScheduleDao.save(this);
     }
     public Schedule(){
-        this.id= UUID.randomUUID().toString();
+        this.id= UUID.randomUUID().toString().replace("-","");
     }
 
     /**

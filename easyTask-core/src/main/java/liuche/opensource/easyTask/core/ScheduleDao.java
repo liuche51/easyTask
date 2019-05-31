@@ -2,11 +2,14 @@ package liuche.opensource.easyTask.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sqlite.SQLiteException;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 class ScheduleDao {
     private static Logger log = LoggerFactory.getLogger(AnnularQueue.class);
@@ -35,12 +38,21 @@ class ScheduleDao {
             String sql = "insert into schedule(id,class_path,execute_time,task_type,period,unit,param,create_time) values('"
                     + schedule.getId() + "','" + schedule.getScheduleExt().getTaskClassPath() + "'," + schedule.getEndTimestamp()
                     + ",'" + schedule.getTaskType().name() + "'," + schedule.getPeriod() + ",'" + (schedule.getUnit() == null ? "" : schedule.getUnit().name())
-                    +"','"+Schedule.serializeMap(schedule.getParam())+ "','" + ZonedDateTime.now().toLocalTime() + "');";
+                    + "','" + Schedule.serializeMap(schedule.getParam()) + "','" + ZonedDateTime.now().toLocalTime() + "');";
             int count = SqliteHelper.executeUpdateForSync(sql);
             if (count > 0) {
                 log.debug("任务:{} 已经持久化", schedule.getId());
                 return true;
             }
+        } catch (SQLiteException e) {
+            //防止生成了重复的UUID。因为连续生成两个UUID的时间至少要间隔100ns
+            if(e.getMessage().contains("PRIMARY KEY"))
+            {
+                schedule.setId(UUID.randomUUID().toString().replace("-",""));
+                save(schedule);
+                log.debug("Error！A PRIMARY KEY constraint failed (UNIQUE constraint failed: schedule.id),but easyTask has generated new uuid and saved success");
+            }else
+                log.error("ScheduleDao.save SQLiteException:{}", e);
         } catch (Exception e) {
             log.error("ScheduleDao.save Exception:{}", e);
         }
