@@ -80,10 +80,6 @@ public class Schedule{
     public void save() {
         ScheduleDao.save(this);
     }
-    public Schedule(){
-        this.id= UUID.randomUUID().toString().replace("-","");
-    }
-
     /**
      * 获取周期性任务下次执行时间。已当前时间为基准计算下次而不是上次截止执行时间
      * @param period

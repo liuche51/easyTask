@@ -177,18 +177,19 @@ public class AnnularQueue {
     }
 
     public String submit(Schedule schedule) throws Exception {
+        schedule.setId(Util.generateUniqueId());
         if (schedule.getTaskType().equals(TaskType.PERIOD)) {
             if (schedule.isImmediateExecute())
                 schedule.setEndTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
             else
                 schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
         }
-        AddSchedule(schedule);
         String path = schedule.getClass().getName();
         schedule.getScheduleExt().setTaskClassPath(path);
         schedule.save();
+        AddSchedule(schedule);
         ZonedDateTime time = ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
-        log.debug("已添加任务:{}，所属分片:{} 预计执行时间:{}", schedule.getId(), time.getSecond(), time.toLocalTime());
+        log.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}",schedule.getTaskType().name(), schedule.getId(), time.getSecond(), time.toLocalTime(),Thread.currentThread().getId());
         return schedule.getId();
     }
 
@@ -202,14 +203,20 @@ public class AnnularQueue {
             if (!TaskType.PERIOD.equals(schedule.getTaskType()))//周期任务需要重新提交新任务
                 continue;
             try {
-                String oldId=schedule.getId();
-                //以下两行代码不可调换顺序，会影响代理那边的取值判断（多线程环境）
-                schedule.getScheduleExt().setOldId(oldId);
-                schedule.setId(UUID.randomUUID().toString());
-                schedule.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
+                Class c = Class.forName(schedule.getScheduleExt().getTaskClassPath());
+                Object o = c.newInstance();
+                Schedule schedule1 = (Schedule) o;//强转后设置id，o对象值也会变，所以强转后的task也是对象的引用而已
+                schedule1.setId(Util.generateUniqueId());
+                schedule1.setEndTimestamp(Schedule.getTimeStampByTimeUnit(schedule.getPeriod(), schedule.getUnit()));
+                schedule1.setPeriod(schedule.getPeriod());
+                schedule1.setTaskType(schedule.getTaskType());
+                schedule1.setUnit(schedule.getUnit());
+                schedule1.getScheduleExt().setTaskClassPath(schedule.getScheduleExt().getTaskClassPath());
+                schedule1.setParam(schedule.getParam());
+                schedule1.save();
+                AddSchedule(schedule1);
                 int slice=AddSchedule(schedule);
-                schedule.save();
-                log.debug("已添加新周期任务:{}，所属分片:{}，旧任务:{}", schedule.getId(),slice, oldId);
+                log.debug("已添加新周期任务:{}，所属分片:{}，旧任务:{} 线程ID:{}", schedule1.getId(),slice, schedule.getId(),Thread.currentThread().getId());
             } catch (Exception e) {
                 log.error("submitNewPeriodSchedule exception！", e);
             }
@@ -245,12 +252,17 @@ public class AnnularQueue {
         }
     }
 
+    /**
+     * 将任务添加到时间分片中去。
+     * @param schedule
+     * @return
+     */
     private int AddSchedule(Schedule schedule) {
         ZonedDateTime time =ZonedDateTime .ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
         int second = time.getSecond();
         Slice slice = slices[second];
         ConcurrentSkipListMap<String,Schedule> list2 = slice.getList();
-        list2.put(schedule.getEndTimestamp()+"+"+schedule.getId().split("-")[0],schedule);
+        list2.put(schedule.getEndTimestamp()+"-"+Util.GREACE.getAndIncrement(),schedule);
         return second;
     }
 }

@@ -44,17 +44,8 @@ class ScheduleDao {
                 log.debug("任务:{} 已经持久化", schedule.getId());
                 return true;
             }
-        } catch (SQLiteException e) {
-            //防止生成了重复的UUID。因为连续生成两个UUID的时间至少要间隔100ns
-            if(e.getMessage().contains("PRIMARY KEY"))
-            {
-                schedule.setId(UUID.randomUUID().toString().replace("-",""));
-                save(schedule);
-                log.debug("Error！A PRIMARY KEY constraint failed (UNIQUE constraint failed: schedule.id),but easyTask has generated new uuid and saved success");
-            }else
-                log.error("ScheduleDao.save SQLiteException:{}", e);
         } catch (Exception e) {
-            log.error("ScheduleDao.save Exception:{}", e);
+            log.error("ScheduleDao.save Exception taskId:{} :{}",schedule.getId(), e);
         }
         return false;
     }
