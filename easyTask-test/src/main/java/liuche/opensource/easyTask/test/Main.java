@@ -22,7 +22,7 @@ public class Main {
     private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     private static Object obj=new Object();
     public static void main(String[] args){
-        allcustomSimpleSetTest();
+        highlyConcurrentTest();
     }
     static void allcustomSimpleSetTest(){
         AnnularQueue annularQueue=AnnularQueue.getInstance();

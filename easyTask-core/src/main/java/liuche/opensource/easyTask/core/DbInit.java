@@ -13,6 +13,8 @@ import java.sql.SQLException;
       * @return
       */
     public static synchronized boolean init() {
+        if(hasInit)
+            return true;
         try {
             SQLlitePool.getInstance().init();
             boolean exist=ScheduleDao.existTable();
@@ -31,6 +33,7 @@ import java.sql.SQLException;
                     ");";
             SqliteHelper.executeUpdateForSync(sql);
             hasInit=true;
+            log.debug("Sqlite 初始化完成。线程:{}",Thread.currentThread().getId());
             return true;
         } catch (Exception e) {
             log.error("easyTask.db init fail.",e);
