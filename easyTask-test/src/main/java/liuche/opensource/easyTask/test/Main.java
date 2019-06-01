@@ -22,10 +22,9 @@ public class Main {
     private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     private static Object obj=new Object();
     public static void main(String[] args){
-        highlyConcurrentTest();
+        allcustomSimpleSetTest();
     }
     static void allcustomSimpleSetTest(){
-        AnnularQueue annularQueue=AnnularQueue.getInstance();
         try {
             annularQueue.setTaskStorePath("C:\\db\\");
             annularQueue.setDispatchThreadPool( new ThreadPoolExecutor(4, 4, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
@@ -52,14 +51,14 @@ public class Main {
             task2.setUnit(TimeUnit.SECONDS);
             Map<String,String> param2=new HashMap<String,String>(){
                 {
-                    put("name","王林");
+                    put("name","Jack");
                     put("birthday","1986-1-1");
                     put("age","32");
                     put("threadid",String.valueOf(Thread.currentThread().getId()));
                 }
             };
             task2.setParam(param2);
-            //annularQueue.submit(task1);
+            annularQueue.submit(task1);
             annularQueue.submit(task2);
             obj.wait();
         } catch (Exception e) {
