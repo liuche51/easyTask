@@ -1,4 +1,4 @@
-import liuche.opensource.easyTask.core.Schedule;
+import com.github.liuche51.easyTask.core.Schedule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

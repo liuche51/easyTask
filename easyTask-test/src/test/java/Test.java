@@ -1,6 +1,6 @@
-import liuche.opensource.easyTask.core.AnnularQueue;
-import liuche.opensource.easyTask.core.Schedule;
-import liuche.opensource.easyTask.core.ScheduleComparator;
+import com.github.liuche51.easyTask.core.AnnularQueue;
+import com.github.liuche51.easyTask.core.Schedule;
+import com.github.liuche51.easyTask.core.ScheduleComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
