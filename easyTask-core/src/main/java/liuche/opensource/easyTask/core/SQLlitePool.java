@@ -69,9 +69,12 @@ class SQLlitePool {
         for (int i = 0; i < poolSize; i++) {
             try {
                 Connection con = DriverManager.getConnection("jdbc:sqlite:" + dbFilePath);
-                pool.addLast(con);
-            } catch (SQLException e) {
-                logger.error("sqlite ClassNotFoundException fail", e);
+                if (con == null) {
+                    logger.debug("数据库连接创建失败，返回null值");
+                } else
+                    pool.addLast(con);
+            } catch (Exception e) {
+                logger.error("sqlite init connection create fail", e);
             }
         }
     }
@@ -83,8 +86,11 @@ class SQLlitePool {
         }
         try {
             Class.forName(driver);
-            Connection con = DriverManager.getConnection(dbFilePath);
-            return con;
+            Connection con = DriverManager.getConnection("jdbc:sqlite:" + dbFilePath);
+            if (con == null) {
+                logger.debug("数据库连接创建失败，返回null值");
+            } else
+                return con;
         } catch (Exception e) {
             logger.error("sqlite connection create fail", e);
         }
