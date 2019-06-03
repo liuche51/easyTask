@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.github.liuche51</groupId>
             <artifactId>easyTask-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <build>
