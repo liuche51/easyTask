@@ -15,6 +15,10 @@
 * supports highly concurrent execution of tasks
 * supports task persistence, and automatically recovers task plan when down
 
+## Architecture
+
+![Architecture](https://www.cnblogs.com/images/cnblogs_com/liuche/1475676/o_IMG20190603_105529.jpg)
+
 ## Getting started
 
 * 定义好您要执行的任务类  Define the task class you want to perform
