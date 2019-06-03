@@ -5,17 +5,19 @@
 ## Features
 
 * 使用简单
-* 支持海量任务执行
+* 秒级精度任务执行计划
+* 支持海量任务提交执行
 * 支持高并发执行任务
 * 支持任务持久化，宕机自动恢复任务计划
 * easy to use
-* supports massive task execution
+* second precision task execution plan
+* supports massive task commit execution
 * supports highly concurrent execution of tasks
 * supports task persistence, and automatically recovers task plan when down
 
 ## Getting started
 
-* 定义好您要执行的任务类
+* 定义好您要执行的任务类  Define the task class you want to perform
 ```java
 public class CusTask1 extends Schedule implements Runnable {
     private static Logger log = LoggerFactory.getLogger(CusTask1.class);
@@ -29,7 +31,7 @@ public class CusTask1 extends Schedule implements Runnable {
     }
 }
 ```
-* 简单应用示例代码
+* 简单应用示例代码   Simply apply the sample code
 ```java
 public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
