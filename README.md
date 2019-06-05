@@ -9,11 +9,13 @@
 * 支持海量任务提交执行
 * 支持高并发执行任务
 * 支持任务持久化，宕机自动恢复任务计划
+* 支持自定义线程池、任务持久化保存路径
 * easy to use
 * second precision task execution plan
 * supports massive task commit execution
 * supports highly concurrent execution of tasks
 * supports task persistence, and automatically recovers task plan when down
+* support for custom thread pool, task persistent save path
 
 ## Architecture
 
@@ -89,3 +91,10 @@ public class Main {
         }
     }
 ```
+
+## Notice
+
+* 此构件已在Windows和centos下做了适当测试，目前未在生产环境中使用过
+* 如果您在使用过程中遇到问题，可以在这里提交
+* this component has been properly tested with Windows and centos and is not currently used in a production environment
+* if you encounter problems during use, you can submit it here
