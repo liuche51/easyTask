@@ -28,7 +28,7 @@
 <dependency>
     <groupId>com.github.liuche51</groupId>
     <artifactId>easyTask</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -95,6 +95,8 @@ public class Main {
 ## Notice
 
 * 此构件已在Windows和centos下做了适当测试，目前未在生产环境中使用过
+* 为了更好的保证系统故障自动恢复任务，请自定义程序任务持久化文件保存的路径(不同应用文件路径定义不同为好，以免被其他应用覆盖)，并确保读写权限。如果以   jar包运行,文件默认在同级目录；如果以war包在tomcat下运行，文件默认在tomcat的bin目录下。
 * 如果您在使用过程中遇到问题，可以在这里提交
 * this component has been properly tested with Windows and centos and is not currently used in a production environment
+* in order to better ensure the automatic recovery of the system failure task, please customize the program task persistence     file saved path (different application file path definition is different, so as not to be overwritten by other applications), and ensure read and write permissions.If run as a jar, the file defaults to the same directory.If you run as a war package under tomcat, the file defaults to the tomcat bin directory.
 * if you encounter problems during use, you can submit it here
