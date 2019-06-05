@@ -36,27 +36,12 @@ class SQLlitePool {
     public void init() {
         try {
             if (dbFilePath == null || dbFilePath.equals("")) {
-                try {
-                    //非jar包时，得到classes目录。jar包时会报异常
-                    String path1 = this.getClass().getClassLoader().getResource("").getPath();
-                    dbFilePath = path1 + "easyTask.db";
-                } catch (Exception e) {
-
-                }
+                dbFilePath = Util.getDefaultDbDirect() + "/easyTask.db";//注意“/”符号目前测试兼容Windows和Linux，不要改成“\”符号不兼容Linux
             }
-            if (dbFilePath == null || dbFilePath.equals("")) {
-                try {
-                    //非jar包时，得到当前类所属jar包的classes目录。jar包时会得到所属运行jar包的物理路径（含.jar部分）
-                    String path2 = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-                    dbFilePath = path2 + "-easyTask.db";
-
-                } catch (Exception e) {
-                }
-            }
-            logger.debug("db-path:{}", dbFilePath);
+            logger.debug("dbFilePath:{}", dbFilePath);
             Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            logger.error("sqlite ClassNotFoundException fail", e);
+        }catch (Exception e){
+            logger.error("sqlite init fail", e);
         }
         //避免重复创建
         if (pool != null && pool.size() > 0)
