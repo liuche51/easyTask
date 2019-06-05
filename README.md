@@ -21,6 +21,15 @@
 
 ## Getting started
 
+* pom添加引用
+```xml
+<dependency>
+    <groupId>com.github.liuche51</groupId>
+    <artifactId>easyTask</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 * 定义好您要执行的任务类  Define the task class you want to perform
 ```java
 public class CusTask1 extends Schedule implements Runnable {
