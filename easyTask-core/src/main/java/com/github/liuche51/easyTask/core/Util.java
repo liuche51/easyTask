@@ -1,5 +1,7 @@
 package com.github.liuche51.easyTask.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Random;
 import java.util.UUID;
@@ -12,5 +14,11 @@ public class Util {
         str.append("-");
         str.append(Thread.currentThread().getId());
         return str.toString();
+    }
+    public static String getDefaultDbDirect() throws IOException {
+        // 第二种：获取项目路径    D:\git\daotie\daotie
+        File directory = new File("");// 参数为空
+        String courseFile = directory.getCanonicalPath();
+        return courseFile;
     }
 }

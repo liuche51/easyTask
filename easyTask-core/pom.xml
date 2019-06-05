@@ -6,7 +6,7 @@
     <parent>
     <artifactId>easyTask</artifactId>
     <groupId>com.github.liuche51</groupId>
-    <version>1.0.5</version>
+    <version>1.0.1</version>
 </parent>
     <artifactId>easyTask-core</artifactId>
     <!--发版至Maven时开启-->

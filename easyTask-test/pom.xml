@@ -5,7 +5,7 @@
     <parent>
         <artifactId>easyTask</artifactId>
         <groupId>com.github.liuche51</groupId>
-        <version>1.0.5</version>
+        <version>1.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.github.liuche51</groupId>
             <artifactId>easyTask-core</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

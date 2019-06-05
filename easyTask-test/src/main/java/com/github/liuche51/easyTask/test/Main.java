@@ -22,7 +22,7 @@ public class Main {
     }
     static void allcustomSimpleSetTest(){
         try {
-            annularQueue.setTaskStorePath("C:\\db\\");
+            //annularQueue.setTaskStorePath("C:\\db\\");
             annularQueue.setDispatchThreadPool( new ThreadPoolExecutor(4, 4, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>()));
             annularQueue.setWorkerThreadPool( new ThreadPoolExecutor(4, 8, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
