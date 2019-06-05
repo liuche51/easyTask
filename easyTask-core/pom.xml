@@ -9,7 +9,7 @@
     <version>1.0.1</version>
 </parent>
     <artifactId>easyTask-core</artifactId>
-    <!--发版至Maven时开启-->
+    <!--发版至Maven时开启 发版参数：mvn clean deploy -P release-->
     <!--<groupId>com.github.liuche51</groupId>
     <artifactId>easyTask</artifactId>
     <version>1.0.0</version>
