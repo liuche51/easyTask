@@ -98,7 +98,8 @@ class SqliteHelper {
     }
 
     /**
-     * 修改数据库专用。保证单互斥使用
+     * 修改数据库专用。保证单互斥使用.以免发生：The database file is locked异常，但是写的过程中同时有
+     * 其他读线程，则读线程仍然会发生此异常。但写操作不受影响。
      * @param sql
      * @return
      * @throws SQLException

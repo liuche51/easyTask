@@ -1,6 +1,7 @@
 package com.github.liuche51.easyTask.test;
 
 import com.github.liuche51.easyTask.core.AnnularQueue;
+import com.github.liuche51.easyTask.core.Monitor;
 import com.github.liuche51.easyTask.core.TaskType;
 import com.github.liuche51.easyTask.core.TimeUnit;
 import com.github.liuche51.easyTask.test.task.CusTask1;
@@ -18,7 +19,7 @@ public class Main {
     private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     private static Object obj=new Object();
     public static void main(String[] args){
-        allcustomSimpleSetTest();
+        highlyConcurrentTest();
     }
     static void allcustomSimpleSetTest(){
         try {
@@ -118,10 +119,19 @@ public class Main {
             });
             th2.start();
         }
-        try {
-            obj.wait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (true){
+            try {
+                Thread.sleep(1000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            log.debug("getDBScheduleCount="+Monitor.getDBScheduleCount());
+            log.debug("getDispatchsPoolWaiteToExecuteScheduleCount="+Monitor.getDispatchsPoolWaiteToExecuteScheduleCount());
+            log.debug("getWorkersPoolWaiteToExecuteScheduleCount="+Monitor.getWorkersPoolWaiteToExecuteScheduleCount());
+            log.debug("getScheduleInAnnularQueueCount="+Monitor.getScheduleInAnnularQueueCount());
+            log.debug("getDispatchsPoolExecutedScheduleCount="+Monitor.getDispatchsPoolExecutedScheduleCount());
+            log.debug("getWorkersPoolExecutedScheduleCount="+Monitor.getWorkersPoolExecutedScheduleCount());
+
         }
     }
 }

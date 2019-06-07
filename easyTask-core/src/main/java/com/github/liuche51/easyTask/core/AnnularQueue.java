@@ -47,9 +47,15 @@ public class AnnularQueue {
 
     private AnnularQueue() {
     }
-
-    ;
-
+    Slice[] getSlices(){
+        return slices;
+    }
+    ExecutorService getDispatchs(){
+        return dispatchs;
+    }
+    ExecutorService getWorkers(){
+        return workers;
+    }
     /**
      * set the Dispatch ThreadPool
      *

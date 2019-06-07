@@ -45,7 +45,7 @@ class ScheduleDao {
                 return true;
             }
         } catch (Exception e) {
-            log.error("ScheduleDao.save Exception taskId:{} :{}",schedule.getScheduleExt().getId(), e);
+            log.error("ScheduleDao.save Exception taskId:{} :{}", schedule.getScheduleExt().getId(), e);
         }
         return false;
     }
@@ -114,5 +114,20 @@ class ScheduleDao {
             return false;
         }
         return true;
+    }
+
+    public static int getAllCount() {
+        SqliteHelper helper = new SqliteHelper();
+        try {
+            ResultSet resultSet = helper.executeQuery("SELECT COUNT(*) FROM schedule;");
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (Exception e) {
+            log.error("ScheduleDao.getAllCount Exception:{}", e);
+        } finally {
+            helper.destroyed();
+        }
+        return 0;
     }
 }
