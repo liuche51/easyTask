@@ -55,6 +55,23 @@ public class CusTask1 extends Schedule implements Runnable {
 * 简单应用示例代码   Simply apply the sample code
 ```java
 public class Main {
+    private static AnnularQueue annularQueue=AnnularQueue.getInstance();
+    private static Object obj=new Object();
+    public static void main(String[] args){
+        try {
+            annularQueue.start();
+            CusTask1 task1 = new CusTask1();
+            task1.setEndTimestamp(ZonedDateTime.now().plusSeconds(10).toInstant().toEpochMilli());
+            annularQueue.submit(task1);
+            obj.wait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+```
+* 高级应用示例代码   Advance apply the sample code
+```java
+public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
     private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     private static Object obj=new Object();
@@ -96,6 +113,15 @@ public class Main {
             e.printStackTrace();
         }
     }
+```
+* 性能监控示例 performance monitoring example
+```java
+log.debug("getDBScheduleCount="+Monitor.getDBScheduleCount());
+log.debug("getDispatchsPoolWaiteToExecuteScheduleCount="+Monitor.getDispatchsPoolWaiteToExecuteScheduleCount());
+log.debug("getWorkersPoolWaiteToExecuteScheduleCount="+Monitor.getWorkersPoolWaiteToExecuteScheduleCount());
+log.debug("getScheduleInAnnularQueueCount="+Monitor.getScheduleInAnnularQueueCount());
+log.debug("getDispatchsPoolExecutedScheduleCount="+Monitor.getDispatchsPoolExecutedScheduleCount());
+log.debug("getWorkersPoolExecutedScheduleCount="+Monitor.getWorkersPoolExecutedScheduleCount());
 ```
 
 ## Notice
