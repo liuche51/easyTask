@@ -19,11 +19,11 @@ public class Main {
     private static AnnularQueue annularQueue=AnnularQueue.getInstance();
     private static Object obj=new Object();
     public static void main(String[] args){
-        highlyConcurrentTest();
+        allcustomSimpleSetTest();
     }
     static void allcustomSimpleSetTest(){
         try {
-            //annularQueue.setTaskStorePath("C:\\db\\");
+            annularQueue.setTaskStorePath("C:\\db\\");
             annularQueue.setDispatchThreadPool( new ThreadPoolExecutor(4, 4, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>()));
             annularQueue.setWorkerThreadPool( new ThreadPoolExecutor(4, 8, 1000, java.util.concurrent.TimeUnit.MILLISECONDS,
@@ -42,7 +42,7 @@ public class Main {
             };
             task1.setParam(param);
             CusTask1 task2 = new CusTask1();
-            task2.setPeriod(30);
+            task2.setPeriod(10);
             task2.setImmediateExecute(true);
             task2.setTaskType(TaskType.PERIOD);
             task2.setUnit(TimeUnit.SECONDS);
@@ -55,7 +55,7 @@ public class Main {
                 }
             };
             task2.setParam(param2);
-            annularQueue.submit(task1);
+            //annularQueue.submit(task1);
             annularQueue.submit(task2);
             obj.wait();
         } catch (Exception e) {
