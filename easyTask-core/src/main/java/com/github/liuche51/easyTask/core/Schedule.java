@@ -12,7 +12,6 @@ public class Schedule{
      */
     private long endTimestamp;
     private TaskType taskType=TaskType.ONECE;
-    private boolean immediateExecute=false;
     private long period;
     private TimeUnit unit;
     private Runnable run;
@@ -38,13 +37,7 @@ public class Schedule{
     public long getPeriod() {
         return period;
     }
-    public boolean isImmediateExecute() {
-        return immediateExecute;
-    }
 
-    public void setImmediateExecute(boolean immediateExecute) {
-        this.immediateExecute = immediateExecute;
-    }
     public void setPeriod(long period) {
         this.period = period;
     }
