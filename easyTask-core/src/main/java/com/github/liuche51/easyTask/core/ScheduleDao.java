@@ -60,7 +60,7 @@ class ScheduleDao {
                     String id = resultSet.getString("id");
                     String classPath = resultSet.getString("class_path");
                     Long executeTime = resultSet.getLong("execute_time");
-                    Integer taskType = resultSet.getInt("task_type");
+                    String taskType = resultSet.getString("task_type");
                     Long period = resultSet.getLong("period");
                     String unit = resultSet.getString("unit");
                     String param = resultSet.getString("param");

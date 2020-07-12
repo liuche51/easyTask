@@ -193,10 +193,7 @@ public class AnnularQueue {
         schedule.getScheduleExt().setTaskClassPath(path);
         //以下两行代码不要调换，否则可能发生任务已经执行完成，而任务尚未持久化，导致无法执行删除持久化的任务风险
         schedule.save();
-        beforeAddSlice(schedule);
-        AddSlice(schedule);
-        ZonedDateTime time = ZonedDateTime.ofInstant(new Timestamp(schedule.getEndTimestamp()).toInstant(), ZoneId.systemDefault());
-        log.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}", schedule.getTaskType().name(), schedule.getScheduleExt().getId(), time.getSecond(), time.toLocalTime(), Thread.currentThread().getId());
+        submitAddSlice(schedule);
         return schedule.getScheduleExt().getId();
     }
 
@@ -235,8 +232,7 @@ public class AnnularQueue {
                     schedule1.setUnit(schedule.getUnit());
                     schedule1.getScheduleExt().setTaskClassPath(schedule.getScheduleExt().getTaskClassPath());
                     schedule1.setParam(schedule.getParam());
-                    recoverBeforeAddSlice(schedule1);
-                    AddSlice(schedule1);
+                    recoverAddSlice(schedule1);
                 } catch (Exception e) {
                     log.error("schedule:{} recover fail.", schedule.getScheduleExt().getId());
                 }
@@ -259,17 +255,18 @@ public class AnnularQueue {
         Slice slice = slices[second];
         ConcurrentSkipListMap<String, Schedule> list2 = slice.getList();
         list2.put(schedule.getEndTimestamp() + "-" + Util.GREACE.getAndIncrement(), schedule);
+        log.debug("已添加类型:{}任务:{}，所属分片:{} 预计执行时间:{} 线程ID:{}", schedule.getTaskType().name(), schedule.getScheduleExt().getId(), time.getSecond(), time.toLocalTime(), Thread.currentThread().getId());
         return second;
     }
 
     /**
-     * 提交任务，在添加到时间轮分片前需要做的一些逻辑判断
-     *
+     * 提交任务到时间轮分片
+     * 提交到分片前需要做的一些逻辑判断
      * @param schedule
      * @throws Exception
      */
     private void submitAddSlice(Schedule schedule) throws Exception {
-        //立即执行的任务，第一次不走时间分片，直接提交执行
+        //立即执行的任务，第一次不走时间分片，直接提交执行。一次性和周期性任务都通过EndTimestamp判断是否需要立即执行
         if (System.currentTimeMillis()+1000l>=schedule.getEndTimestamp()) {
             log.debug("立即执行类工作任务:{}已提交代理执行", schedule.getScheduleExt().getId());
             Runnable proxy = (Runnable) new ProxyFactory(schedule).getProxyInstance();
@@ -286,13 +283,13 @@ public class AnnularQueue {
         AddSlice(schedule);
     }
     /**
-     * 提交或恢复任务，在添加到时间轮分片前需要做的一些逻辑判断
-     *
+     * 恢复任务到时间轮分片
+     * 提交到分片前需要做的一些逻辑判断
      * @param schedule
      * @throws Exception
      */
     private void recoverAddSlice(Schedule schedule) throws Exception {
-        //立即执行的任务，第一次不走时间分片，直接提交执行
+        //立即执行的任务，第一次不走时间分片，直接提交执行。周期任务恢复时没有立即执行一说
         if (schedule.getTaskType().equals(TaskType.ONECE)&&System.currentTimeMillis()>=schedule.getEndTimestamp()) {
             log.debug("恢复一次性工作任务:{}，因为执行时间已过期，需立即提交代理执行", schedule.getScheduleExt().getId());
             Runnable proxy = (Runnable) new ProxyFactory(schedule).getProxyInstance();
