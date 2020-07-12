@@ -10,12 +10,12 @@
 </parent>
     <artifactId>easyTask-core</artifactId>
     <!--发版至Maven时开启 发版参数：mvn clean deploy -P release-->
-    <!--<groupId>com.github.liuche51</groupId>
+  <!--  <groupId>com.github.liuche51</groupId>
     <artifactId>easyTask</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.2</version>
     <name>${project.artifactId}</name>
-    <description>${project.artifactId}</description>
-    <url>https://github.com/liuche51</url>-->
+    <description>${project.artifactId}</description>-->
+    <url>https://github.com/liuche51</url>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <properties>
@@ -29,7 +29,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.26</version>
-            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.27.2.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -43,12 +48,6 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.26</version>
             <scope>test</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.27.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
