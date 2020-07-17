@@ -38,7 +38,9 @@ public class Schedule{
         return period;
     }
 
-    public void setPeriod(long period) {
+    public void setPeriod(long period) throws Exception {
+        if(period<=0)
+            throw new Exception("period cannot less than 0！");
         this.period = period;
     }
 
