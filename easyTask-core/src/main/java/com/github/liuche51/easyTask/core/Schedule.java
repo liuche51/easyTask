@@ -77,8 +77,6 @@ public class Schedule{
      * @throws Exception
      */
     public static long getNextExcuteTimeStamp(long period,TimeUnit unit) throws Exception {
-        if(period==0)
-            throw new Exception("period can not zero");
         switch (unit)
         {
             case DAYS:
