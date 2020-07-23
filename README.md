@@ -5,8 +5,10 @@
 
 ## Usage scenarios
 
-* 需要精确到秒的某一时刻触发任务执行。比如订单交易完成24小时后如果客户未评价，则系统自动给出评价。
-* 需要周期性的执行某个任务。比如每天下午6点，提醒员工下班关机。
+* 乘坐网约车结单后30分钟若顾客未评价，则系统将默认提交一条评价信息
+* 银行充值接口，要求5分钟后才可以查询到结果成功OR失败
+* 会员登录系统30秒后自动发送一条登录短信通知
+* 每个登录用户每隔10秒统计一次其某活动中获得的积分
 
 ## Features
 
@@ -25,7 +27,7 @@
 
 ## Architecture
 
-![Architecture](https://www.cnblogs.com/images/cnblogs_com/liuche/1475676/o_IMG20190603_105529.jpg)
+![Architecture](https://images.cnblogs.com/cnblogs_com/liuche/1811577/o_200722062635%E5%9B%BE%E7%89%872.png)
 
 ## Getting started
 
@@ -34,7 +36,7 @@
 <dependency>
     <groupId>com.github.liuche51</groupId>
     <artifactId>easyTask</artifactId>
-    <version>1.0.1</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 
@@ -126,9 +128,9 @@ log.debug("getWorkersPoolExecutedScheduleCount="+Monitor.getWorkersPoolExecutedS
 
 ## Notice
 
-* 此构件已在Windows和centos下做了适当测试，目前未在生产环境中使用过
+* 此构件已在Windows和centos下做了适当测试，如需使用，请自行测试
 * 为了更好的保证系统故障自动恢复任务，请自定义程序任务持久化文件保存的路径(不同应用文件路径定义不同为好，以免被其他应用覆盖)，并确保读写权限。如果以   jar包运行,文件默认在同级目录；如果以war包在tomcat下运行，文件默认在tomcat的bin目录下。
 * 如果您在使用过程中遇到问题，可以在这里提交
-* this component has been properly tested with Windows and centos and is not currently used in a production environment
+* this component has been properly tested with Windows and centos
 * in order to better ensure the automatic recovery of the system failure task, please customize the program task persistence     file saved path (different application file path definition is different, so as not to be overwritten by other applications), and ensure read and write permissions.If run as a jar, the file defaults to the same directory.If you run as a war package under tomcat, the file defaults to the tomcat bin directory.
 * if you encounter problems during use, you can submit it here
