@@ -3,7 +3,7 @@ package com.github.liuche51.easyTask.core;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class ScheduleExt {
+public class ScheduleExt {
     private String id;
     private String taskClassPath;
     private volatile String oldId;
