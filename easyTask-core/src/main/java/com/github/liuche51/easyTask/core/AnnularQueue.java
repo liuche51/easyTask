@@ -153,21 +153,24 @@ public class AnnularQueue {
                     }
                 }
                 Slice slice = slices[second];
-                log.debug("已执行时间分片:{}，任务数量:{}", second, slice.getList() == null ? 0 : slice.getList().size());
+                //slice.getList().size()数量多时，会非常耗时。生产下需要关闭此处
+                //log.debug("已执行时间分片:{}，任务数量:{}", second, slice.getList() == null ? 0 : slice.getList().size());
                 lastSecond = second;
                 dispatchs.submit(new Runnable() {
                     public void run() {
                         ConcurrentSkipListMap<String, Schedule> schedules = slice.getList();
                         List<Schedule> periodSchedules = new LinkedList<>();
-                        for (Map.Entry<String, Schedule> entry : schedules.entrySet()) {
-                            Schedule s = entry.getValue();
+                        Iterator<Map.Entry<String, Schedule>> items = schedules.entrySet().iterator();
+                        while (items.hasNext()) {
+                            Map.Entry<String, Schedule> item = items.next();
+                            Schedule s = item.getValue();
                             //因为计算时有一秒钟内的精度问题，所以判断时当前时间需多补上一秒。这样才不会导致某些任务无法得到及时的执行
                             if (System.currentTimeMillis() + 1000l >= s.getEndTimestamp()) {
                                 Runnable proxy = (Runnable) new ProxyFactory(s).getProxyInstance();
                                 workers.submit(proxy);
                                 if (TaskType.PERIOD.equals(s.getTaskType()))//周期任务需要重新提交新任务
                                     periodSchedules.add(s);
-                                schedules.remove(entry.getKey());
+                                schedules.remove(item.getKey());
                                 log.debug("工作任务:{}已提交代理执行，所属时间分片:{}", s.getScheduleExt().getId(), second);
                             }
                             //因为列表是已经按截止执行时间排好序的，可以节省后面元素的过期判断
@@ -196,7 +199,34 @@ public class AnnularQueue {
         submitAddSlice(schedule);
         return schedule.getScheduleExt().getId();
     }
-
+    /**
+     * 删除已提交任务。
+     * 包括从环形队列中删除和持久化删除任务
+     *
+     * @param sId
+     * @throws Exception
+     */
+    public void delete(String sId) throws Exception {
+        if (!isRunning) throw new Exception("the easyTask has not started,please wait a moment!");
+        boolean ret = ScheduleDao.delete(sId);
+        if (!ret)
+            throw new Exception("delete failed! please try agin.");
+        boolean hasDel = false;
+        for (Slice slice : slices) {
+            ConcurrentSkipListMap<String, Schedule> list = slice.getList();
+            Iterator<Map.Entry<String, Schedule>> items = list.entrySet().iterator();
+            while (items.hasNext()) {
+                Map.Entry<String, Schedule> item = items.next();
+                if (item.getValue().getScheduleExt().getId().equals(sId)) {
+                    items.remove();
+                    hasDel = true;
+                    log.debug("the taskId=" + sId + " has removed from AnnularQueue!");
+                    break;
+                }
+            }
+            if (hasDel) break;
+        }
+    }
     /**
      * 批量创建新周期任务
      *
