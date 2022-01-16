@@ -2,7 +2,7 @@
 
 * 一个方便触发一次性或周期性任务执行的工具包，支持海量,高并发,高可用,宕机自动恢复任务
 * A convenient and trigger a one-time or periodic task execution toolkit, support mass, high concurrency, high availability, downtime automatic recovery tasks
-
+* 当前项目已经不在继续维护，后续主推easyTask-X项目，一个独立的分布式中间件实现方案
 ## Usage scenarios
 
 * 乘坐网约车结单后30分钟若顾客未评价，则系统将默认提交一条评价信息
